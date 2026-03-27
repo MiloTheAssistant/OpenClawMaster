@@ -1,0 +1,115 @@
+defaults:
+  strategy: hybrid
+  execution_mode: simulate
+  risk_mode: balanced
+  parallel_cap: 6
+
+providers:
+  nvidia_nim:
+    base_url: https://integrate.api.nvidia.com/v1
+    api_key_env: NVIDIA_NIM_API_KEY
+    priority: 1  # preferred cloud provider — free tier
+  ollama_local:
+    base_url: http://localhost:11434
+    priority: 0  # always available, zero cost
+  ollama_cloud:
+    base_url: https://api.ollama.com/v1
+    api_key_env: OLLAMA_API_KEY
+    priority: 2
+  anthropic:
+    base_url: https://api.anthropic.com/v1
+    api_key_env: ANTHROPIC_API_KEY
+    priority: 3  # reserve for high-stakes
+  codex:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    priority: 4  # reserve for frontier coding
+  perplexity:
+    base_url: https://api.perplexity.ai
+    api_key_env: PERPLEXITY_API_KEY
+    priority: 2
+
+agents:
+  Milo:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/nemotron-3-nano:4b
+    escalation_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
+    high_stakes_model: anthropic/claude-sonnet-4-6
+    escalate_to_cloud_on:
+      - complexity_gte_3
+      - long_context
+
+  Elon:
+    bias: accuracy
+    preference: cloud-preferred
+    primary_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
+    escalation_model: anthropic/claude-opus-4-6
+    fallback_model: codex/gpt-5.4
+    local_fallback: ollama_local/nemotron-3-super
+
+  Sentinel:
+    bias: accuracy
+    preference: hybrid
+    primary_model: ollama_local/glm-4.7-flash
+    escalation_model: nvidia_nim/zhipu/glm-5
+    high_stakes_model: anthropic/claude-opus-4-6
+    cloud_on:
+      - high_stakes
+      - conflicting_outputs
+
+  Cortana:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:4b
+    escalation_model: ollama_local/qwen3.5:9b
+
+  Pulse:
+    bias: speed
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:9b
+    web_grounded_model: perplexity/sonar-pro
+
+  Sagan:
+    bias: accuracy
+    preference: cloud-preferred
+    primary_model: nvidia_nim/zhipu/glm-5
+    supplementary_model: perplexity/sonar-pro
+    escalation_model: anthropic/claude-opus-4-6
+    fallback_model: codex/gpt-5.4
+    local_fallback: ollama_local/glm-5
+
+  Neo:
+    bias: accuracy
+    preference: cloud-preferred
+    primary_model: nvidia_nim/minimax/minimax-m2.5
+    escalation_model: codex/gpt-5.3-codex
+    fallback_model: anthropic/claude-sonnet-4-6
+    local_fallback: ollama_local/qwen3-coder-next
+
+  Cornelius:
+    bias: balanced
+    preference: hybrid
+    primary_model: ollama_local/qwen3-coder-next:latest
+    escalation_model: codex/gpt-5.3-codex
+    fallback_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
+    escalate_bias_on_risk: accuracy
+    exclusive_local: true  # 51GB — runs solo, no concurrent local models
+
+  Hemingway:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3:14b
+    escalation_model: anthropic/claude-sonnet-4-6
+
+  Jonny:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3:14b
+    escalation_model: anthropic/claude-sonnet-4-6
+
+  Zuck:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:9b
+    escalation_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b

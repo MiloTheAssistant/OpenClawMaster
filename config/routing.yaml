@@ -1,0 +1,80 @@
+defaults:
+  simple_answer_owner: Milo
+  orchestration_owner: Elon
+
+# Profiles define both the agent set and the execution sequence.
+# Brackets [] within a sequence indicate parallel execution.
+# See Router_Profiles.md for narrative descriptions.
+profiles:
+  intelligence:
+    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    sequence:
+      - Pulse                    # scout and score signals
+      - Sagan                    # validate and synthesize
+      - Hemingway                # format readable brief
+      - Elon                     # compile executive packet
+      - Zuck                     # distribute if approved
+      - Cortana                  # log state
+
+  campaign:
+    agents: [Sagan, Hemingway, Jonny, Elon, Zuck, Cortana]
+    sequence:
+      - Sagan                    # research and source material
+      - [Hemingway, Jonny]       # copy + visual in parallel
+      - Elon                     # compile and clear
+      - Zuck                     # distribute
+      - Cortana                  # log state
+
+  engineering:
+    agents: [Neo, Cornelius, Sentinel, Milo, Cortana]
+    sequence:
+      - Neo                      # architecture and tradeoffs
+      - Cornelius                # execution plan with rollback
+      - Sentinel                 # QA gate (always triggered for infra)
+      - Milo                     # approval gate
+      - Cortana                  # log state
+
+  executive:
+    agents: [Elon, Sentinel, Milo, Cortana]
+    sequence:
+      - Elon                     # build task graph, dispatch parallel specialists
+      - Sentinel                 # QA on aggregated results
+      - Milo                     # final approval
+      - Cortana                  # log state
+    notes: Elon fans out to specialists dynamically based on task graph
+
+  social_response:
+    agents: [Pulse, Hemingway, Zuck, Cortana]
+    sequence:
+      - Pulse                    # detect or receive signal
+      - Hemingway                # draft response copy
+      - Zuck                     # package and post
+      - Cortana                  # log state
+
+  recurring_publish:
+    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    sequence:
+      - Pulse                    # scan feeds and signals
+      - Sagan                    # synthesize and validate sources
+      - Hemingway                # format for audience
+      - Elon                     # clear run instance
+      - Zuck                     # auto-post to approved channels
+      - Cortana                  # log run completion
+    requires:
+      - standing_milo_approval
+      - elon_instance_clearance
+      - sentinel_not_blocking
+
+rules:
+  - when: simple_and_fast
+    route_to: Milo
+  - when: cross_domain_or_multi_step
+    route_to: Elon
+  - when: research_required
+    enforce: Sagan
+  - when: signal_detected
+    start_with: Pulse
+  - when: system_change
+    route_sequence: [Neo, Cornelius]
+  - when: approved_recurring_publish
+    route_profile: recurring_publish

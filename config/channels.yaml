@@ -1,0 +1,27 @@
+user_facing:
+  - Milo
+  - Elon
+
+internal_only:
+  - Sentinel
+  - Cortana
+  - Pulse
+  - Sagan
+  - Neo
+  - Cornelius
+  - Hemingway
+  - Jonny
+  - Zuck
+
+external_distribution:
+  recurring_auto_allowed:
+    - Discord
+    - Telegram
+  manual_only:
+    - X
+  planned:
+    - channel: X_auto
+      status: pending_api_integration
+      prerequisite: X.com Developer API setup complete
+      approval_required: separate_standing_approval  # DEC-004
+      note: Will require its own Milo standing approval independent of Discord/Telegram lanes
