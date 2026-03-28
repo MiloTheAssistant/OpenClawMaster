@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-27T00:00:00.000Z"
+    "lastTouchedAt": "2026-03-28T22:25:22.770Z"
   },
   "wizard": {
     "lastRunAt": "2026-03-27T00:00:00.000Z",
@@ -268,8 +268,8 @@
               "text"
             ],
             "cost": {
-              "input": 3.0,
-              "output": 9.0,
+              "input": 3,
+              "output": 9,
               "cacheRead": 0,
               "cacheWrite": 0
             },
@@ -714,6 +714,18 @@
         "canvas.navigate",
         "canvas.snapshot"
       ]
+    }
+  },
+  "mcp": {
+    "servers": {
+      "gmail-jds": {
+        "command": "/opt/homebrew/bin/gmail-mcp",
+        "args": [],
+        "env": {
+          "PORT": "3333",
+          "AUTH_SERVER_PORT": "3333"
+        }
+      }
     }
   },
   "plugins": {
