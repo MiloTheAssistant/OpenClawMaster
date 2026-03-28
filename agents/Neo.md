@@ -1,6 +1,6 @@
 ---
 name: Neo
-model: nim/minimaxai/minimax-m2.5
+model: nim/qwen/qwen3-coder-480b-a35b-instruct
 color: "#3b82f6"
 description: "Lead Engineer — Architecture & Technical Design"
 ---

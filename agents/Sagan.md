@@ -1,6 +1,6 @@
 ---
 name: Sagan
-model: nim/z-ai/glm5
+model: perplexity/sonar-reasoning-pro
 color: "#8b5cf6"
 description: "Deep Research & Synthesis Authority"
 ---

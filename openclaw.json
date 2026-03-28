@@ -41,41 +41,9 @@
     "providers": {
       "ollama": {
         "baseUrl": "http://127.0.0.1:11434",
-        "apiKey": "OLLAMA_API_KEY",
+        "apiKey": "${OLLAMA_API_KEY}",
         "api": "ollama",
         "models": [
-          {
-            "id": "kimi-k2.5:cloud",
-            "name": "kimi-k2.5:cloud",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 128000,
-            "maxTokens": 8192
-          },
-          {
-            "id": "minimax-m2.5:cloud",
-            "name": "minimax-m2.5:cloud",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 204800,
-            "maxTokens": 8192
-          },
           {
             "id": "glm-5:cloud",
             "name": "glm-5:cloud",
@@ -138,22 +106,6 @@
               "cacheWrite": 0
             },
             "contextWindow": 262144,
-            "maxTokens": 8192
-          },
-          {
-            "id": "default:latest",
-            "name": "default:latest",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 128000,
             "maxTokens": 8192
           },
           {
@@ -221,22 +173,6 @@
             "maxTokens": 8192
           },
           {
-            "id": "nemotron-3-super:cloud",
-            "name": "nemotron-3-super:cloud",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 262144,
-            "maxTokens": 8192
-          },
-          {
             "id": "qwen3-coder-next:latest",
             "name": "qwen3-coder-next:latest",
             "reasoning": false,
@@ -251,22 +187,6 @@
             },
             "contextWindow": 262144,
             "maxTokens": 8192
-          },
-          {
-            "id": "minimax-m2.7:cloud",
-            "name": "minimax-m2.7:cloud",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 204800,
-            "maxTokens": 8192
           }
         ]
       },
@@ -280,7 +200,9 @@
             "name": "GLM-5",
             "api": "openai-completions",
             "reasoning": false,
-            "input": ["text"],
+            "input": [
+              "text"
+            ],
             "contextWindow": 131072,
             "maxTokens": 8192
           },
@@ -289,7 +211,10 @@
             "name": "GLM-4-Plus",
             "api": "openai-completions",
             "reasoning": false,
-            "input": ["text", "image"],
+            "input": [
+              "text",
+              "image"
+            ],
             "contextWindow": 131072,
             "maxTokens": 8192
           }
@@ -301,8 +226,8 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
-            "name": "Nemotron Super 49B",
+            "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+            "name": "Nemotron Super 49B v1.5",
             "api": "openai-completions",
             "reasoning": false,
             "input": [
@@ -333,6 +258,23 @@
             },
             "contextWindow": 131072,
             "maxTokens": 8192
+          },
+          {
+            "id": "qwen/qwen3-coder-480b-a35b-instruct",
+            "name": "Qwen3-Coder 480B",
+            "api": "openai-completions",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 3.0,
+              "output": 9.0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 262144,
+            "maxTokens": 32768
           }
         ]
       },
@@ -501,11 +443,12 @@
         "primary": "anthropic/claude-sonnet-4-6"
       },
       "models": {
-        "ollama/kimi-k2.5:cloud": {},
-        "ollama/nemotron-3-super:cloud": {},
-        "nim/nvidia/llama-3.3-nemotron-super-49b-v1": {},
-        "ollama/minimax-m2.7:cloud": {},
-        "openai-codex/gpt-5.4": {}
+        "anthropic/claude-sonnet-4-6": {},
+        "openai-codex/gpt-5.4": {},
+        "nim/qwen/qwen3-coder-480b-a35b-instruct": {},
+        "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5": {},
+        "zai/glm-5": {},
+        "perplexity/sonar-reasoning-pro": {}
       },
       "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
       "memorySearch": {
@@ -550,7 +493,7 @@
       {
         "id": "pulse",
         "name": "Pulse",
-        "model": "ollama/minimax-m2.7:cloud",
+        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
         "sandbox": {
           "mode": "all"
         }
@@ -570,13 +513,13 @@
         "id": "cornelius",
         "name": "Cornelius",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cornelius",
-        "model": "ollama/gpt-oss:latest"
+        "model": "ollama/qwen3-coder-next:latest"
       },
       {
         "id": "cortana",
         "name": "Cortana",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cortana",
-        "model": "ollama/minimax-m2.7:cloud",
+        "model": "ollama/qwen3.5:4b",
         "tools": {
           "deny": [
             "group:web",
@@ -588,13 +531,13 @@
         "id": "neo",
         "name": "Neo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-neo",
-        "model": "nim/minimaxai/minimax-m2.5"
+        "model": "nim/qwen/qwen3-coder-480b-a35b-instruct"
       },
       {
         "id": "hemingway",
         "name": "Hemingway",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hemingway",
-        "model": "ollama/minimax-m2.7:cloud",
+        "model": "ollama/qwen3:14b",
         "tools": {
           "deny": [
             "group:web",
@@ -606,7 +549,7 @@
         "id": "jonny",
         "name": "Jonny",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-jonny",
-        "model": "ollama/qwen3:14b",
+        "model": "zai/glm-5",
         "sandbox": {
           "mode": "all"
         },
@@ -621,7 +564,7 @@
         "id": "zuck",
         "name": "Zuck",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-zuck",
-        "model": "ollama/minimax-m2.7:cloud",
+        "model": "ollama/qwen3.5:9b",
         "tools": {
           "deny": [
             "group:web",

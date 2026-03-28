@@ -1,6 +1,6 @@
 ---
 name: Milo
-model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
+model: anthropic/claude-sonnet-4-6
 color: "#6366f1"
 description: "Governor — Executive Authority & User Interface"
 ---

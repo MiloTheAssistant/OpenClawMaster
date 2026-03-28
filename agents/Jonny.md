@@ -1,6 +1,6 @@
 ---
 name: Jonny
-model: ollama/qwen3:14b
+model: zai/glm-5
 color: "#ec4899"
 description: "Visual Strategy & Prompt Design"
 ---

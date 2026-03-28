@@ -1,6 +1,6 @@
 ---
 name: Pulse
-model: ollama/qwen3.5:9b
+model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
 color: "#10b981"
 description: "Trend Scout & Signal Analysis"
 ---

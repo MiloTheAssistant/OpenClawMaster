@@ -1,6 +1,6 @@
 ---
 name: Elon
-model: nim/nvidia/llama-3.3-nemotron-super-49b-v1
+model: openai-codex/gpt-5.4
 color: "#f59e0b"
 description: "Master Orchestrator — Task Graphs & Routing"
 ---

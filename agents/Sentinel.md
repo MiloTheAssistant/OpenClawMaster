@@ -1,6 +1,6 @@
 ---
 name: Sentinel
-model: ollama/glm-4.7-flash
+model: ollama/glm-4.7-flash:latest
 color: "#ef4444"
 description: "QA Gate — Approve / Reject"
 ---
