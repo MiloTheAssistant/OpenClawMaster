@@ -270,6 +270,31 @@
           }
         ]
       },
+      "zai": {
+        "baseUrl": "https://api.z.ai/api/paas/v4",
+        "apiKey": "${ZAI_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "glm-5",
+            "name": "GLM-5",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": ["text"],
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "glm-4-plus",
+            "name": "GLM-4-Plus",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      },
       "nim": {
         "baseUrl": "https://integrate.api.nvidia.com/v1",
         "apiKey": "${NVIDIA_API_KEY}",
@@ -539,7 +564,7 @@
       {
         "id": "sentinel-rt",
         "name": "Sentinel Red Team",
-        "model": "nim/z-ai/glm5"
+        "model": "zai/glm-5"
       },
       {
         "id": "cornelius",
