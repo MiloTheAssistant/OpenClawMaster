@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-28T22:25:22.770Z"
+    "lastTouchedAt": "2026-03-28T22:37:35.356Z"
   },
   "wizard": {
     "lastRunAt": "2026-03-27T00:00:00.000Z",
@@ -724,6 +724,15 @@
         "env": {
           "PORT": "3333",
           "AUTH_SERVER_PORT": "3333"
+        }
+      },
+      "gmail-milo": {
+        "command": "/opt/homebrew/bin/gmail-mcp",
+        "args": [],
+        "env": {
+          "PORT": "3335",
+          "AUTH_SERVER_PORT": "3334",
+          "MCP_CONFIG_DIR": "/Volumes/BotCentral/Users/milo/.gmail-mcp-milo"
         }
       }
     }
