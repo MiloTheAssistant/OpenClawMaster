@@ -32,7 +32,7 @@
       },
       "anthropic:default": {
         "provider": "anthropic",
-        "mode": "api_key"
+        "mode": "oauth"
       }
     }
   },
@@ -297,7 +297,6 @@
       },
       "anthropic": {
         "baseUrl": "https://api.anthropic.com/v1",
-        "apiKey": "${ANTHROPIC_API_KEY}",
         "api": "anthropic-messages",
         "models": [
           {
