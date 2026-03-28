@@ -1,9 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-27T00:00:00.000Z",
-    "repo": "MiloTheAssistant/OpenClawMaster",
-    "note": "Source of truth. API keys live in ~/.openclaw/.env — never commit secrets."
+    "lastTouchedAt": "2026-03-27T00:00:00.000Z"
   },
   "wizard": {
     "lastRunAt": "2026-03-27T00:00:00.000Z",
