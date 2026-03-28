@@ -18,8 +18,19 @@ Step-by-step fresh install guide. Follow in order — do not skip steps.
 
 ```bash
 # Backup memory BEFORE touching anything
-cp -r ~/.openclaw/memory/ /Volumes/MiloCache/MiloLocalBak/snapshots/$(date +%Y-%m-%d)/memory/
-cp -r ~/.openclaw/workspace/smart-memory/ /Volumes/MiloCache/MiloLocalBak/snapshots/$(date +%Y-%m-%d)/smart-memory/
+SNAP="/Volumes/MiloCache/MiloLocalBak/snapshots/$(date +%Y-%m-%d)"
+mkdir -p "$SNAP"
+
+cp -r ~/.openclaw/memory/                  "$SNAP/memory/"
+cp -r ~/.openclaw/workspace/smart-memory/  "$SNAP/smart-memory/"
+
+# Workspace identity files — critical for Milo's sense of self and user context
+# Without these, Milo wakes up with blank USER.md/IDENTITY.md/SOUL.md
+cp ~/.openclaw/workspace/USER.md           "$SNAP/" 2>/dev/null || true
+cp ~/.openclaw/workspace/IDENTITY.md       "$SNAP/" 2>/dev/null || true
+cp ~/.openclaw/workspace/SOUL.md           "$SNAP/" 2>/dev/null || true
+cp ~/.openclaw/workspace/AGENTS.md         "$SNAP/" 2>/dev/null || true
+cp ~/.openclaw/workspace/HEARTBEAT.md      "$SNAP/" 2>/dev/null || true
 ```
 
 ---
@@ -140,10 +151,24 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.openclaw.gateway.plis
 ## Step 11 — Restore Memory
 
 ```bash
-cp -r /Volumes/MiloCache/MiloLocalBak/snapshots/YYYY-MM-DD/memory/ ~/.openclaw/memory/
-# smart-memory is 974M — restore only if needed:
-cp -r /Volumes/MiloCache/MiloLocalBak/snapshots/YYYY-MM-DD/smart-memory/ ~/.openclaw/workspace/smart-memory/
+SNAP="/Volumes/MiloCache/MiloLocalBak/snapshots/YYYY-MM-DD"
+
+cp -r "$SNAP/memory/" ~/.openclaw/memory/
+
+# smart-memory is ~974M — restore only if needed:
+cp -r "$SNAP/smart-memory/" ~/.openclaw/workspace/smart-memory/
+
+# Restore workspace identity files — prevents "hangover" blank-slate on first chat
+# Without these Milo won't know who John is or have any personality context
+for f in USER.md IDENTITY.md SOUL.md AGENTS.md HEARTBEAT.md; do
+  [ -f "$SNAP/$f" ] && cp "$SNAP/$f" ~/.openclaw/workspace/"$f" && echo "Restored $f"
+done
 ```
+
+> **Why this matters:** `USER.md`, `IDENTITY.md`, and `SOUL.md` are Milo's "working memory" —
+> they're what Milo reads at the start of every session to know who it is and who it's talking to.
+> If these are blank, Milo wakes up as a stranger. The SQLite memory (`main.sqlite`) holds the
+> deep history but isn't consulted until Milo explicitly runs a memory search.
 
 ---
 
