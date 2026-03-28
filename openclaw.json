@@ -461,6 +461,7 @@
       },
       "models": {
         "anthropic/claude-sonnet-4-6": {},
+        "anthropic/claude-opus-4-5": {},
         "openai-codex/gpt-5.4": {},
         "nim/qwen/qwen3-coder-480b-a35b-instruct": {},
         "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5": {},
@@ -608,6 +609,12 @@
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
         "model": "ollama/qwen3.5:35b"
+      },
+      {
+        "id": "themis",
+        "name": "Themis",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-themis",
+        "model": "anthropic/claude-opus-4-5"
       }
     ]
   },
