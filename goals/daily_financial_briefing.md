@@ -16,6 +16,7 @@ Cortana (context gate)
         Task 2 — AI Industry Intelligence
         Task 3 — Retirement & Income Intelligence
         Task 4 — Health After 60 Intelligence
+  → Quant (numerical analysis → FINANCIAL_ANALYSIS block)
   → Hemingway (format → Discord + JSON)
   → Sentinel (QA gate)
   → Zuck (post Discord #dfb + write JSON + trigger deploy)
@@ -235,8 +236,30 @@ Grounded, not hype. Flag anything that contradicts mainstream guidelines.
 
 ---
 
+### QUANT
+**Task:** Receive `MARKET_DATA` from Cortana and structured intel from Pulse. Produce a `FINANCIAL_ANALYSIS` block for Hemingway to write against. Do not format for Discord. Numbers only.
+
+**Inputs:**
+- `MARKET_DATA` block from Cortana (prices, fear/greed, BTC dominance)
+- Pulse output (ETF flows, on-chain, macro signals)
+
+**Compute:**
+- Day-over-day and 7-day % changes for BTC, MSTR instruments
+- BTC dominance delta (pp change)
+- ETF net flow totals and direction trend
+- MSTR instrument spreads and NAV premium estimates (where data available)
+- Macro correlation note (DXY/10Y vs BTC movement)
+- Anomaly flags: any metric >2σ from recent average, or notable divergences
+
+**Rules:**
+- Mark unavailable fields as `null` with a brief reason
+- Do not editorialize — "BTC fell 4.2%" not "BTC had a rough day"
+- Pass the completed `FINANCIAL_ANALYSIS` block to Hemingway
+
+---
+
 ### HEMINGWAY
-**Task:** Compile all Pulse + Sagan outputs into a Daily Financial Briefing.
+**Task:** Compile all Pulse + Sagan + Quant outputs into a Daily Financial Briefing.
 
 Produce **TWO outputs**:
 1. Discord-formatted briefing (for Zuck to post)

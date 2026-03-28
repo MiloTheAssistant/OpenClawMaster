@@ -1,0 +1,3 @@
+[submodule "skills/ai-legal-claude"]
+	path = skills/ai-legal-claude
+	url = https://github.com/zubair-trabzada/ai-legal-claude.git

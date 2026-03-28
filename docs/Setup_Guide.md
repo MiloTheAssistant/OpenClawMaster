@@ -186,12 +186,39 @@ If OAuth fails, temporarily switch Elon to Claude in `openclaw.json`:
 
 ---
 
+## Step 13 — Install Legal Skills (ai-legal-claude)
+
+```bash
+# Initialize submodule (first time only)
+cd /Volumes/MiloCache/MiloLocalBak/OpenClawMaster
+git submodule update --init
+
+# Install 14 skills + 5 agents into ~/.claude/skills/ and ~/.claude/agents/
+cd skills/ai-legal-claude && bash install.sh
+
+# PDF generation dependency
+pip3 install reportlab --user --ignore-installed
+```
+
+After install, `/legal` commands are available in Claude Code sessions immediately.
+OpenClaw agents can also invoke them via `nativeSkills: true` in openclaw.json.
+
+To update legal skills to latest upstream:
+```bash
+cd /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/skills/ai-legal-claude
+git pull && bash install.sh
+```
+
+---
+
 ## Verification Checklist
 
 ```bash
-openclaw agents list          # → 12 agents shown
+openclaw agents list          # → 14 agents shown (includes Quant + Hermes)
 openclaw gateway status       # → port 18789 live
 python3 ~/.openclaw/scripts/check-gateway-keys.py   # → all keys green
+# Test legal skills are installed:
+ls ~/.claude/skills/legal/                           # → SKILL.md + scripts/ + templates/
 ```
 
 - Send Telegram message to Milo → should respond
