@@ -1,8 +1,8 @@
 # Daily Financial Briefing — Task Prompt
 **Workflow:** `recurring_publish`
 **Schedule:** 8:45 AM America/Chicago, weekdays
-**Destination:** Discord "Milo's World" → `#dfb` + DFB website JSON
-**Cron Job ID:** `37a87d4f-05f5-4aad-9051-ed566a011b54`
+**Destination:** DFB website JSON only (Discord posting suspended)
+**Cron Job ID:** `4e2b478e-0041-48d1-83d2-9a8425f51eac`
 
 ---
 
@@ -17,9 +17,9 @@ Cortana (context gate)
         Task 3 — Retirement & Income Intelligence
         Task 4 — Health After 60 Intelligence
   → Quant (numerical analysis → FINANCIAL_ANALYSIS block)
-  → Hemingway (format → Discord + JSON)
+  → Hemingway (format → JSON only)
   → Sentinel (QA gate)
-  → Zuck (post Discord #dfb + write JSON + trigger deploy)
+  → Zuck (write JSON + trigger deploy)
   → Cortana (close + log)
 ```
 
@@ -261,9 +261,10 @@ Grounded, not hype. Flag anything that contradicts mainstream guidelines.
 ### HEMINGWAY
 **Task:** Compile all Pulse + Sagan + Quant outputs into a Daily Financial Briefing.
 
-Produce **TWO outputs**:
-1. Discord-formatted briefing (for Zuck to post)
-2. Structured JSON block labeled `dfb-json` (for Zuck to write to disk)
+Produce **ONE output**:
+1. Structured JSON block labeled `dfb-json` (for Zuck to write to disk and deploy)
+
+> Discord posting is currently suspended. Do not produce a Discord-formatted briefing.
 
 **Audience:** One person. Morning coffee read. Financially sophisticated. No hand-holding. No hype. Occasionally dry.
 
@@ -511,7 +512,7 @@ Fail → return to Hemingway with specific notes. One retry. Second failure → 
 ---
 
 ### ZUCK
-**Task:** Four deliverables, in order:
+**Task:** Three deliverables, in order:
 
 **1. Write JSON to disk**
 Extract the `dfb-json` block. Write to:
@@ -528,17 +529,14 @@ Also write/overwrite:
 cd /Volumes/BotCentral/Users/milo/.openclaw/workspace/website && vercel deploy --prod --yes 2>&1
 ```
 
-**3. Post to Discord #dfb**
-Channel ID: `1485800271421640854`
-Split at section boundaries if any section exceeds 2,000 characters.
-Post sequentially. No commentary. No summary. Post as delivered.
+**3. Confirm and log to Cortana**
+JSON written ✓ | Deploy triggered ✓
 
-**4. Confirm and log to Cortana**
-JSON written ✓ | Deploy triggered ✓ | Discord posts sent (count) ✓
+> Discord posting is currently suspended. Do not post to Discord.
 
 ---
 
 ### CORTANA — CLOSE
 After Zuck confirms:
-- Log: timestamp, null fields count, Sentinel flags, Discord message count, round-trip time
+- Log: timestamp, null fields count, Sentinel flags, deploy status, round-trip time
 - Update `Active_Projects.md` DFB entry with last run date and status
