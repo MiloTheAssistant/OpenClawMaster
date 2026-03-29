@@ -539,7 +539,7 @@
         "id": "cortana",
         "name": "Cortana",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cortana",
-        "model": "ollama/qwen3.5:4b",
+        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
         "tools": {
           "deny": [
             "group:web",
@@ -589,7 +589,10 @@
           "deny": [
             "group:web",
             "browser"
-          ]
+          ],
+          "fs": {
+            "workspaceOnly": false
+          }
         }
       },
       {
@@ -727,7 +730,10 @@
     "servers": {
       "gmail-jds": {
         "command": "/bin/sh",
-        "args": ["-c", "kill $(lsof -ti:3333) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"],
+        "args": [
+          "-c",
+          "kill $(lsof -ti:3333) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"
+        ],
         "env": {
           "PORT": "3333",
           "AUTH_SERVER_PORT": "3333"
@@ -735,7 +741,10 @@
       },
       "gmail-milo": {
         "command": "/bin/sh",
-        "args": ["-c", "kill $(lsof -ti:3335) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"],
+        "args": [
+          "-c",
+          "kill $(lsof -ti:3335) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"
+        ],
         "env": {
           "PORT": "3335",
           "AUTH_SERVER_PORT": "3334",
