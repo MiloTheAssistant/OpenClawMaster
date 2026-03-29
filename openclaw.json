@@ -456,7 +456,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-sonnet-4-6"
+        "primary": "openai-codex/gpt-5.4"
       },
       "models": {
         "anthropic/claude-sonnet-4-6": {},
@@ -502,7 +502,7 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "anthropic/claude-sonnet-4-6"
+        "model": "openai-codex/gpt-5.4"
       },
       {
         "id": "elon",
