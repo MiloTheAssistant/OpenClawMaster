@@ -726,16 +726,16 @@
   "mcp": {
     "servers": {
       "gmail-jds": {
-        "command": "/opt/homebrew/bin/gmail-mcp",
-        "args": [],
+        "command": "/bin/sh",
+        "args": ["-c", "kill $(lsof -ti:3333) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"],
         "env": {
           "PORT": "3333",
           "AUTH_SERVER_PORT": "3333"
         }
       },
       "gmail-milo": {
-        "command": "/opt/homebrew/bin/gmail-mcp",
-        "args": [],
+        "command": "/bin/sh",
+        "args": ["-c", "kill $(lsof -ti:3335) 2>/dev/null; exec /opt/homebrew/bin/gmail-mcp"],
         "env": {
           "PORT": "3335",
           "AUTH_SERVER_PORT": "3334",
