@@ -487,10 +487,10 @@
       },
       "compaction": {
         "mode": "default",
-        "reserveTokensFloor": 30000,
+        "reserveTokensFloor": 16384,
         "memoryFlush": {
           "enabled": true,
-          "softThresholdTokens": 65000
+          "softThresholdTokens": 40000
         }
       },
       "heartbeat": {
