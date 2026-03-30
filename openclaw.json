@@ -490,7 +490,7 @@
         "reserveTokensFloor": 16384,
         "memoryFlush": {
           "enabled": true,
-          "softThresholdTokens": 40000
+          "softThresholdTokens": 25000
         }
       },
       "heartbeat": {
