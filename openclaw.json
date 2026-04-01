@@ -604,7 +604,12 @@
         "id": "sagan",
         "name": "Sagan",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sagan",
-        "model": "perplexity/sonar-reasoning-pro"
+        "model": "perplexity/sonar-reasoning-pro",
+        "tools": {
+          "deny": [
+            "*"
+          ]
+        }
       },
       {
         "id": "quant",
