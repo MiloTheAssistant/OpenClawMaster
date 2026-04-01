@@ -1,6 +1,6 @@
 ---
 name: Quant
-model: nim/deepseek-ai/deepseek-v3.2
+model: openai/o4-mini
 color: "#10b981"
 description: "Financial Data Analysis & Quantitative Intelligence"
 ---

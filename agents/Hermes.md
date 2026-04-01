@@ -1,6 +1,6 @@
 ---
 name: Hermes
-model: ollama/qwen3.5:35b
+model: ollama/qwen3.5:35b-a3b-codingnvfp4
 color: "#f59e0b"
 description: "Email Triage, Drafting & Communication Intelligence"
 ---
