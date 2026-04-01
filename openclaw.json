@@ -502,13 +502,13 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "openai-codex/gpt-5.4"
+        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
       },
       {
         "id": "elon",
         "name": "Elon",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-elon",
-        "model": "openai-codex/gpt-5.4"
+        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
       },
       {
         "id": "pulse",
