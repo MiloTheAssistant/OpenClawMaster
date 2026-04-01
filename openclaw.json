@@ -544,9 +544,7 @@
           "deny": [
             "group:web",
             "browser"
-          ]
-        },
-        "sandbox": {
+          ],
           "fs": {
             "workspaceOnly": false
           }
