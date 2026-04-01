@@ -109,6 +109,22 @@
             "maxTokens": 8192
           },
           {
+            "id": "qwen3.5:35b-a3b-codingnvfp4",
+            "name": "qwen3.5:35b NVFP4",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 262144,
+            "maxTokens": 8192
+          },
+          {
             "id": "qwen3:14b",
             "name": "qwen3:14b",
             "reasoning": false,
@@ -448,6 +464,24 @@
             },
             "contextWindow": 128000,
             "maxTokens": 16384
+          },
+          {
+            "id": "o4-mini",
+            "name": "o4-mini",
+            "api": "openai-completions",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 1.1,
+              "output": 4.4,
+              "cacheRead": 0.275,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 100000
           }
         ]
       }
@@ -468,7 +502,9 @@
         "nim/nvidia/llama-3.1-nemotron-ultra-253b-v1": {},
         "zai/glm-5": {},
         "perplexity/sonar-reasoning-pro": {},
-        "ollama/qwen3.5:35b": {}
+        "ollama/qwen3.5:35b": {},
+        "ollama/qwen3.5:35b-a3b-codingnvfp4": {},
+        "openai/o4-mini": {}
       },
       "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
       "memorySearch": {
@@ -613,13 +649,13 @@
         "id": "quant",
         "name": "Quant",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-quant",
-        "model": "nim/deepseek-ai/deepseek-v3.2"
+        "model": "openai/o4-mini"
       },
       {
         "id": "hermes",
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
-        "model": "ollama/qwen3.5:35b"
+        "model": "ollama/qwen3.5:35b-a3b-codingnvfp4"
       },
       {
         "id": "themis",
@@ -632,6 +668,12 @@
         "name": "Cerberus",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cerberus",
         "model": "nim/nvidia/llama-3.1-nemotron-ultra-253b-v1"
+      },
+      {
+        "id": "kairo",
+        "name": "Kairo",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-kairo",
+        "model": "anthropic/claude-sonnet-4-6"
       }
     ]
   },
