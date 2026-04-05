@@ -1,7 +1,6 @@
-# config/models.yaml
-# Model assignments for Mission Control agents
-# Allowed providers: ollama_local, ollama_cloud, openai, perplexity, zai, nvidia_nim
-# BLOCKED: anthropic/* — policy blocked with OpenClaw harness
+# Mission Control — Model Configuration
+# Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
+# Anthropic API is NOT approved for OpenClaw harness use
 
 defaults:
   strategy: hybrid
@@ -10,187 +9,146 @@ defaults:
   parallel_cap: 6
 
 providers:
-  nvidia_nim:
-    base_url: https://integrate.api.nvidia.com/v1
-    api_key_env: NVIDIA_NIM_API_KEY
-    priority: 1
-    notes: "Preferred cloud provider — broadest frontier model access"
   ollama_local:
     base_url: http://localhost:11434
-    priority: 0
-    notes: "Always available, zero cost, memory-constrained (45GB max concurrent)"
-  ollama_cloud:
-    base_url: https://api.ollama.com/v1
-    api_key_env: OLLAMA_API_KEY
-    priority: 2
-    notes: "Cloud-hosted Ollama models — no local memory pressure"
-  openai:
-    base_url: https://api.openai.com/v1
-    api_key_env: OPENAI_API_KEY
-    priority: 3
-    notes: "ChatGPT Plus — o3 for deep reasoning, o4-mini for structured output, gpt-4o for speed"
+    priority: 0  # always available, zero cost
+  nim:
+    base_url: https://integrate.api.nvidia.com/v1
+    api_key_env: NVIDIA_NIM_API_KEY
+    priority: 1  # preferred cloud — generous free tier
   perplexity:
     base_url: https://api.perplexity.ai
     api_key_env: PERPLEXITY_API_KEY
-    priority: 2
-    notes: "Web-grounded research — Sagan primary"
+    priority: 1  # web-grounded research
   zai:
     base_url: https://api.z.ai/v1
     api_key_env: ZAI_API_KEY
     priority: 2
-    notes: "Z.ai hosted GLM models — Jonny primary, Hemingway escalation"
-
-# Hardware constraint
-hardware:
-  max_concurrent_local_model_gb: 45
-  exclusive_models:
-    - model: ollama_local/qwen3-coder-next:latest
-      agent: Cornelius
-      footprint_gb: 51
-      rule: "When active, no other local Ollama models may run. ELON must schedule as exclusive sequential step."
+  ollama_cloud:
+    base_url: https://api.ollama.com/v1
+    api_key_env: OLLAMA_API_KEY
+    priority: 2
+  codex:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    priority: 3  # reserve for heavy orchestration and coding
 
 agents:
   Milo:
-    role_type: GOVERNOR
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/nemotron-3-nano:4b
-    escalation_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    escalate_on:
+    primary_model: ollama_local/nemotron-super-49b
+    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
+    fallback_model: ollama_cloud/nemotron-super-49b
+    escalate_to_cloud_on:
       - complexity_gte_3
       - long_context
 
   Elon:
-    role_type: ORCHESTRATOR
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    escalation_model: openai/o3
-    fallback_model: nvidia_nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
-    escalate_on:
-      - high_complexity_graph
-      - conflicting_specialist_outputs
-      - risk_mode_elevated
+    primary_model: nim/nvidia/nemotron-3-super-120b-a12b
+    escalation_model: codex/gpt-5.4
+    fallback_model: zai/glm-5
+    local_fallback: ollama_local/qwen3.5:32b
 
   Sentinel:
-    role_type: GATE
     bias: accuracy
     preference: hybrid
-    primary_model: ollama_local/glm-4.7-flash:latest
-    escalation_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    high_stakes_model: openai/o3
-    escalate_on:
+    primary_model: ollama_local/glm-4.7-flash
+    escalation_model: zai/glm-5
+    cloud_on:
       - high_stakes
       - conflicting_outputs
-      - critical_risk_flag
 
   Cortana:
-    role_type: STATE
     bias: balanced
     preference: local-first
     primary_model: ollama_local/qwen3.5:4b
     escalation_model: ollama_local/qwen3.5:9b
-    notes: "Always parallel-safe. Stateless reads and structured writes only."
 
   Themis:
-    role_type: GATE
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nvidia_nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
-    escalation_model: openai/o3
-    fallback_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    notes: "Legal precision requires frontier reasoning. No cost-cutting here."
+    primary_model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
+    escalation_model: codex/gpt-5.4
+    fallback_model: zai/glm-5
 
   Cerberus:
-    role_type: GATE
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nvidia_nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
-    escalation_model: openai/o3
-    fallback_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    notes: "Security analysis requires frontier reasoning. No cost-cutting here."
+    primary_model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
+    escalation_model: codex/gpt-5.4
+    fallback_model: zai/glm-5
 
   Pulse:
-    role_type: SENSOR
     bias: speed
-    preference: cloud-preferred
-    primary_model: nvidia_nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
-    fallback_model: ollama_local/qwen3.5:9b
-    notes: "Speed over depth. Runs parallel with QUANT."
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:9b
+    web_grounded_model: perplexity/sonar-pro
+    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
 
   Sagan:
-    role_type: ANALYST
     bias: accuracy
     preference: cloud-preferred
     primary_model: perplexity/sonar-reasoning-pro
-    supplementary_model: perplexity/sonar-pro
-    escalation_model: nvidia_nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
-    notes: "Web-grounded research is the primary use case. Perplexity is the right tool."
+    supplementary_model: zai/glm-5
+    escalation_model: codex/gpt-5.4
+    local_fallback: ollama_local/qwen3.5:32b
 
   Quant:
-    role_type: ANALYST
     bias: accuracy
-    preference: cloud-preferred
-    primary_model: openai/o4-mini
-    fallback_model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
-    notes: "Reasoning model for structured JSON financial output. o4-mini is purpose-built for this."
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:14b
+    escalation_model: codex/o4-mini
+    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
 
   Neo:
-    role_type: BUILDER
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nvidia_nim/qwen/qwen3-coder-480b-a35b-instruct
-    escalation_model: openai/o3
-    fallback_model: ollama_local/qwen3-coder-next:latest
-    notes: "Best cloud coder for architecture. Escalate to o3 for complex cross-system design."
+    primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
+    escalation_model: codex/gpt-5.3-codex
+    fallback_model: zai/glm-5
+    local_fallback: ollama_local/qwen3-coder-next
 
   Cornelius:
-    role_type: BUILDER
     bias: balanced
     preference: local-exclusive
     primary_model: ollama_local/qwen3-coder-next:latest
-    escalation_model: openai/gpt-4o
-    exclusive_local: true
-    footprint_gb: 51
-    notes: "Runs solo. 51GB footprint. No concurrent local models. ELON must schedule as exclusive."
+    escalation_model: codex/gpt-5.3-codex  # only if local is down
+    escalate_bias_on_risk: accuracy
+    exclusive_local: true  # 51GB — runs solo, no concurrent local models
 
   Hemingway:
-    role_type: PUBLISHER
     bias: balanced
     preference: local-first
     primary_model: ollama_local/qwen3:14b
     escalation_model: zai/glm-5
-    notes: "Local model sufficient for most copy. Escalate to Z.ai GLM-5 for high-stakes messaging."
+    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
 
   Jonny:
-    role_type: PUBLISHER
     bias: balanced
     preference: cloud-preferred
     primary_model: zai/glm-5
-    fallback_model: nvidia_nim/zhipu/glm-5
-    notes: "GLM-5 excels at structured creative direction. Z.ai is primary, NIM mirror as fallback."
+    fallback_model: ollama_local/qwen3:14b
 
   Kairo:
-    role_type: COMMS
-    bias: balanced
-    preference: cloud-preferred
-    primary_model: nvidia_nim/minimax/minimax-m2.5
-    escalation_model: openai/gpt-4o
-    fallback_model: ollama_cloud/qwen3:14b
-    notes: "Frontend code + design. Minimax M2.5 handles multimodal context well for UI work."
-
-  Hermes:
-    role_type: COMMS
-    bias: balanced
+    bias: accuracy
     preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
-    escalation_model: nvidia_nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
-    notes: "Email triage is relatively lightweight. Local first, escalate for complex drafting."
+    primary_model: ollama_local/qwen3-coder-next:latest
+    escalation_model: nim/qwen/qwen3-coder-480b-a35b-instruct  # when Cornelius holds local
+    fallback_model: codex/gpt-5.3-codex
+    note: "When CORNELIUS is active locally, route to nim escalation_model"
 
   Zuck:
-    role_type: PUBLISHER
     bias: balanced
     preference: local-first
     primary_model: ollama_local/qwen3.5:9b
-    escalation_model: nvidia_nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
-    notes: "Packaging and distribution. Lightweight task — local model is sufficient."
+    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
+
+  Hermes:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:14b
+    escalation_model: zai/glm-5
+    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
