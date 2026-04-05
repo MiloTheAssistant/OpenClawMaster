@@ -1,23 +1,26 @@
 # AGENTS.md
-## Mission Control — Agent Operating Charter
+## Mission Control / OpenClaw — Agent Architecture & Operating Rules
 
-> Single source of truth for agent identity, authority, delegation rules, and execution policy.
-> Runtime behavior (model selection, parallelism caps, channel permissions) lives in `config/`.
-> Workflow definitions live in `goals/`. This document governs the agents, not the workflows.
+> **Source of truth for agent identity, authority, delegation, and execution policy.**
+> See `config/routing.yaml` for parallelism rules. See `Agent_Model_Routing_Matrix.md` for model selection.
+> See `GotchaFramework.md` for the full operating framework this document governs.
 
 ---
 
-## Authority Chain
+## User-Facing Access
 
-```
-1. JOHN (USER)
-2. MILO — Executive Assistant, HALT authority
-3. ELON — First Principles Orchestrator
-4. SENTINEL / CORTANA / THEMIS / CERBERUS — within their scopes
-5. Specialist agents — within assigned tasks only
-```
+John may speak directly with:
 
-HALT is owned exclusively by MILO. ELON may surface a HALT_RECOMMENDATION; MILO decides and executes. No other agent halts unilaterally.
+| Agent | Domain |
+|-------|--------|
+| **MILO** | Everything — primary interface |
+| **ELON** | Status updates and clarification only |
+| **THEMIS** | Legal, when explicitly invoked |
+| **CERBERUS** | Security, when explicitly invoked |
+| **HERMES** | Email, when explicitly invoked |
+| **KAIRO** | Frontend/design, when explicitly invoked |
+
+All other agents operate behind the scenes. They do not speak to John directly.
 
 ---
 
@@ -25,95 +28,124 @@ HALT is owned exclusively by MILO. ELON may surface a HALT_RECOMMENDATION; MILO 
 
 ### Command Layer
 
-| Agent | Role | Model | User-Facing |
-|-------|------|-------|-------------|
-| MILO | Executive Assistant | `anthropic/claude-sonnet-4-6` | Yes — primary interface |
-| ELON | First Principles Orchestrator | `openai-codex/gpt-5.4` | Yes — status/clarification only, never final delivery |
+| Agent | Role | Model |
+|-------|------|-------|
+| **MILO** | Executive Assistant — intake, policy, HALT, final delivery | `anthropic/claude-sonnet-4-6` |
+| **ELON** | First Principles Orchestrator — task graphs, routing, clearance | `openai-codex/gpt-5.4` |
 
 ### Governance Layer
 
-| Agent | Role | Model | User-Facing |
-|-------|------|-------|-------------|
-| SENTINEL | QA Gate | `ollama/glm-4.7-flash:latest` | No |
-| CORTANA | State & Memory Engine | `ollama/qwen3.5:4b` | No |
-| THEMIS | Legal Intelligence | `anthropic/claude-opus-4-5` | Yes — when invoked |
-| CERBERUS | Security Intelligence | `nim/nvidia/llama-3.1-nemotron-ultra-253b-v1` | Yes — when invoked |
+| Agent | Role | Model |
+|-------|------|-------|
+| **SENTINEL** | QA Gate — approve/reject outputs before delivery | `ollama/glm-4.7-flash:latest` |
+| **CORTANA** | State Engine — memory, telemetry, artifact tracking | `ollama/qwen3.5:4b` |
+| **THEMIS** | Legal Intelligence — contracts, compliance, risk | `anthropic/claude-opus-4-5` |
+| **CERBERUS** | Security Intelligence — threats, incidents, posture | `nim/nvidia/llama-3.1-nemotron-ultra-253b-v1` |
 
 ### Specialist Layer
 
-| Agent | Role Type | Model | User-Facing |
-|-------|-----------|-------|-------------|
-| PULSE | SENSOR | `nim/nvidia/llama-3.3-nemotron-super-49b-v1.5` | No |
-| SAGAN | ANALYST | `perplexity/sonar-reasoning-pro` | No |
-| QUANT | ANALYST | `openai/o4-mini` | No |
-| NEO | BUILDER | `nim/qwen/qwen3-coder-480b-a35b-instruct` | No |
-| CORNELIUS | BUILDER | `ollama/qwen3-coder-next:latest` | No |
-| HEMINGWAY | PUBLISHER | `ollama/qwen3:14b` | No |
-| JONNY | PUBLISHER | `zai/glm-5` | No |
-| KAIRO | COMMS | `anthropic/claude-sonnet-4-6` | Yes — when invoked |
-| ZUCK | PUBLISHER | `ollama/qwen3.5:9b` | No |
-| HERMES | COMMS | `ollama/qwen3.5:35b-a3b-codingnvfp4` | Yes — when invoked |
+| Agent | Role | Model |
+|-------|------|-------|
+| **PULSE** | Signal Scout — trend detection and scoring | `nim/nvidia/llama-3.3-nemotron-super-49b-v1.5` |
+| **SAGAN** | Deep Research — evidence-backed synthesis authority | `perplexity/sonar-reasoning-pro` |
+| **QUANT** | Financial Analyst — quantitative metrics only | `openai/o4-mini` |
+| **NEO** | Lead Engineer — architecture and technical design | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
+| **CORNELIUS** | Infra Planner — execution plans and rollback paths | `ollama/qwen3-coder-next:latest` |
+| **HEMINGWAY** | Copy — research to readable messaging | `ollama/qwen3:14b` |
+| **JONNY** | Visual Strategy — mood, layout, prompt design | `zai/glm-5` |
+| **KAIRO** | Frontend — Next.js, Tailwind, shadcn/ui | `anthropic/claude-sonnet-4-6` |
+| **ZUCK** | Social Ops — packaging and distribution | `ollama/qwen3.5:9b` |
+| **HERMES** | Email — triage, summarization, drafting | `ollama/qwen3.5:35b-a3b-codingnvfp4` |
+
+---
+
+## Authority Chain
+
+```
+1. John (USER)
+2. MILO — policy, approval, HALT
+3. ELON — orchestration, routing, clearance
+4. SENTINEL / CORTANA / THEMIS / CERBERUS — within their scopes
+5. Specialist agents — within assigned tasks only
+```
 
 ---
 
 ## Role Types
 
-Role types tell ELON how to handle each agent in a task graph — whether it can parallelize, when it must gate, and what it returns.
+Every agent has a declared `ROLE_TYPE` that governs how ELON assigns and sequences them:
 
-| ROLE_TYPE | Behavior |
-|-----------|----------|
-| `GOVERNOR` | Sets policy, approves, halts. MILO only. |
-| `ORCHESTRATOR` | Builds task graphs, dispatches, fan-out/fan-in. ELON only. |
-| `GATE` | Must-pass checkpoint before output exits system. Returns approve/block/halt. |
-| `STATE` | Always parallel-safe. Stateless reads, structured writes. No policy decisions. |
-| `SENSOR` | Signal detection only. No synthesis. Feeds ANALYST agents. |
-| `ANALYST` | Synthesis and computation. Feeds PUBLISHER or COMMS agents. |
-| `BUILDER` | Design → execution plan. Sequential dependency (design before execution). |
-| `PUBLISHER` | Content packaging and distribution. Requires ELON clearance for posting. |
-| `COMMS` | User-facing domain specialists. Surface directly to John when invoked. |
+| ROLE_TYPE | Agents | Behavior |
+|-----------|--------|----------|
+| `GOVERNOR` | MILO | Sets policy, caps, approves high-risk actions, owns HALT |
+| `ORCHESTRATOR` | ELON | Builds task graphs, fans out/in, clears distribution |
+| `GATE` | SENTINEL, THEMIS, CERBERUS | Must-pass before output exits or action executes |
+| `STATE` | CORTANA | Always parallel-safe — stateless reads, structured writes |
+| `SENSOR` | PULSE | Signal detection only — no synthesis, no analysis |
+| `ANALYST` | SAGAN, QUANT | Synthesis and computation authority respectively |
+| `BUILDER` | NEO, CORNELIUS | Design → execution plan (sequential dependency) |
+| `PUBLISHER` | HEMINGWAY, JONNY, ZUCK | Creative → packaging → post |
+| `COMMS` | HERMES, KAIRO | User-facing domain specialists |
 
 ---
 
-## Delegation Rules
+## HALT Authority
 
-### MILO → ELON
-MILO dispatches to ELON when complexity score ≥ 2 or any tool call is required. MILO never executes multi-step or cross-domain tasks inline.
+**HALT is owned exclusively by MILO.**
+
+- ELON orchestrates but cannot halt
+- THEMIS, CERBERUS, and SENTINEL may surface `halt_recommended: true` in their deliverables
+- ELON receives these flags, freezes the graph, and surfaces a `HALT_RECOMMENDATION` to MILO
+- MILO makes the call — proceed, modify, or stop
+- On HALT: all active lanes freeze, CORTANA logs the event with reason, MILO reports to John
+
+---
+
+## Core Operating Rules
+
+**Command**
+- MILO handles simple requests directly (score < 2, no tool calls)
+- MILO dispatches complex or cross-domain requests to ELON via `BRIEF_FOR_ELON`
+- ELON reasons from first principles before building any task graph
+- MILO delivers all final output to John — ELON never delivers directly
+
+**Governance**
+- SENTINEL evaluates outputs for QA — never initiates, never speaks to John
+- CORTANA tracks all state and memory — no policy decisions, no direct user interaction
+- THEMIS gates all legal exposure — may recommend HALT
+- CERBERUS gates all infra changes and deployments — may recommend HALT
+
+**Specialists**
+- PULSE detects and scores signals — PULSE does not analyze
+- SAGAN is the single research authority — deep analysis converges here
+- QUANT computes financial metrics only — no prose, no editorial
+- NEO proposes architecture — CORNELIUS proposes execution plans (always sequential)
+- HERMES drafts email — John sends. Always.
+- ZUCK is the only posting agent — auto-post inside approved lanes only
+- KAIRO builds frontend — ZUCK handles deployment to Vercel
+
+**State**
+- All durable state changes route through CORTANA
+- Durable policy changes require MILO approval before CORTANA writes
+- Decision_Log entries are append-only — never modified after the fact
+
+---
+
+## Delegation Flow
 
 ```
-BRIEF_FOR_ELON:
-  REQUEST:
-  GOAL:
-  CONTEXT:
-  CONSTRAINTS:
-  ASSUMPTIONS:
-  COMPLEXITY_SCORE:
-  TIER_CAP:
-  PARALLEL_CAP:
-  RISK_MODE:
-  SUGGESTED_AGENTS:
+John → MILO (intake + brief)
+  MILO → ELON (orchestration)
+    ELON → CORTANA (context pull — always first)
+    ELON → [specialists] (parallel or sequential per task type)
+    ELON → SENTINEL (QA — always last)
+  ELON → MILO (EXECUTIVE_PACKET)
+MILO → John (final delivery)
 ```
 
-### ELON → Specialists
-Before building any task graph, ELON runs the First Principles Check:
-1. What is the actual goal? (not what was asked — what outcome is needed)
-2. What is the minimum set of agents and steps to reach it?
-3. Does a Router Profile in `config/routing.yaml` already cover this?
-
-ELON dispatches using a TASK_GRAPH with explicit agent assignments, parallel lanes, sequential dependencies, and required barriers.
-
-### Specialists → ELON
-All specialist agents return structured envelopes only. No direct user messaging. No side effects outside their defined scope.
-
-```
-AGENT_RETURN:
-  task_id:
-  agent:
-  status: COMPLETE | BLOCKED | ESCALATE
-  output: <structured envelope per agent format>
-  flags: [HALT_RECOMMENDED | REVIEW_REQUIRED | NONE]
-```
-
-`ESCALATE` routes back to ELON. `HALT_RECOMMENDED` routes to MILO via ELON.
+**Gate agents (THEMIS, CERBERUS) insert into the graph when:**
+- Legal exposure is in scope → THEMIS runs before final delivery
+- Infrastructure change or deployment is in scope → CERBERUS runs before execution
 
 ---
 
@@ -123,127 +155,97 @@ AGENT_RETURN:
 - Mac Mini M4 Pro, 64GB unified memory
 - OS + services reserved: ~8GB
 - Max concurrent local model footprint: 45GB
-- CORNELIUS (`qwen3-coder-next:latest`) is exclusive — ~51GB footprint. When active locally, no other local models may run.
+- CORNELIUS (`qwen3-coder-next:latest`) is exclusive — when active, no other local models run
 
-**Global defaults** (see `config/parallelism.yaml`):
+**Global defaults (set by MILO per request):**
 - `PARALLEL_CAP`: 6 concurrent specialist lanes
-- `TIER_CAP`: set per request by MILO
+- `TIER_CAP`: set per request
 - `RISK_MODE`: balanced
 - `EXECUTION_MODE`: simulate
 
-### Concurrency Rules
+**Parallel-safe groups:**
 
-**Always parallel-safe:**
-- CORTANA (stateless reads/writes, no resource contention — always fires first)
+| Group | Agents |
+|-------|--------|
+| Signal + numeric | PULSE, QUANT |
+| Creative pipeline | HEMINGWAY, JONNY, KAIRO |
+| Engineering + state | NEO, CORTANA |
+| Distribution | HEMINGWAY, JONNY, ZUCK |
+| Research pipeline | CORTANA, PULSE, SAGAN (SAGAN after fan-out) |
+| Comms | HERMES (always parallel-safe alongside other work) |
 
-**Parallel-safe groups** (may run simultaneously when fed the same upstream brief):
-- `[PULSE, QUANT]` — sensor + numeric pipeline
-- `[HEMINGWAY, JONNY, KAIRO]` — creative/design pipeline
-- `[NEO, CORTANA]` — engineering + state
-- `[HEMINGWAY, JONNY, ZUCK]` — distribution packaging
-- HERMES alongside any other work
+CORTANA is always parallel-safe.
 
-**Sequential dependencies** (must respect order):
-- `CORTANA` → everything else (always first)
-- `PULSE` → `SAGAN` (signal before synthesis)
-- `NEO` → `CORNELIUS` (architecture before execution plan)
-- `ELON fan-in` → `SENTINEL` (QA before output exits)
-- `SENTINEL` → `ZUCK` (clearance before publish)
-- `MILO approval` → `CORNELIUS execution` (always)
+**Sequential dependencies:**
 
-**Barriers required before:**
-- Final synthesis
-- External publishing or deployment
-- Execution approval
-- Legal or security sign-off
+| Sequence | Rule |
+|----------|------|
+| PULSE → SAGAN | Sensor before synthesis |
+| NEO → CORNELIUS | Design before execution plan |
+| ELON fan-in → SENTINEL | QA before output exits |
+| SENTINEL → ZUCK | Clearance before publish |
+| CERBERUS → infra execution | Security review before any system change |
+| THEMIS → contract action | Legal review before any signing or acceptance |
 
 ---
 
-## Agent Assignment Patterns
+## Fan-Out / Fan-In Rules
 
-ELON uses these formations as starting points. Check `config/routing.yaml` for Router Profiles before building a custom graph.
-
-| Task Type | Formation |
-|-----------|-----------|
-| Research + synthesis | `CORTANA → [PULSE, SAGAN] → HEMINGWAY → SENTINEL` |
-| Financial intelligence | `CORTANA → [PULSE, QUANT] → HEMINGWAY → SENTINEL` |
-| Engineering + infra | `CORTANA → NEO → CORNELIUS → SENTINEL → MILO approval` |
-| Security incident | `CORTANA → CERBERUS → SENTINEL → MILO` |
-| Legal review | `CORTANA → THEMIS → SENTINEL → MILO` |
-| Content campaign | `CORTANA → SAGAN → [HEMINGWAY, JONNY] → ZUCK → SENTINEL` |
-| Email triage | `CORTANA → HERMES → MILO` |
-| Frontend/design | `CORTANA → KAIRO → [JONNY optional] → SENTINEL` |
-| Distribution (recurring) | `ZUCK (inside approved lane) → SENTINEL` |
+- Only independent subtasks may fan out
+- ELON owns all fan-out and fan-in coordination
+- A **barrier** must exist before:
+  - Final synthesis
+  - External publishing or deployment
+  - Execution approval
+  - Legal or security sign-off when required
 
 ---
 
-## HALT Protocol
+## Standing Workflow Approval
 
-1. Any agent may set `flags: [HALT_RECOMMENDED]` in its return envelope with a specific reason.
-2. GATE agents (SENTINEL, THEMIS, CERBERUS) surface HALT_RECOMMENDATION to ELON immediately.
-3. ELON freezes the task graph and routes HALT_RECOMMENDATION to MILO.
-4. MILO evaluates and decides: proceed, modify, or HALT.
-5. If HALT: all active lanes freeze, CORTANA logs the event with reason, MILO reports to John.
-6. Only MILO may lift a HALT.
-
----
-
-## Standing Workflow Policy
-
-A workflow is standing-approved if:
-- It has a `workflow_id` in `goals/` or `config/routing.yaml`
-- MILO approved it at initial creation
-- ELON clears each run instance before dispatch
-- SENTINEL is not blocking when review is triggered
-- THEMIS/CERBERUS are not blocking when their domains are in scope
-- ZUCK is posting only to explicitly allowed channels
-
-Standing approval does not bypass HALT. Any blocking flag from a GATE agent pauses the run pending MILO review.
+A standing-approved recurring workflow runs with reduced friction when:
+- MILO approved the workflow policy on initial creation
+- ELON clears each run instance
+- No blocking flags from SENTINEL, THEMIS, or CERBERUS
+- ZUCK posts only to explicitly allowed channels
 
 ---
 
-## Failure Protocol
+## Agent Assignment Patterns (ELON reference)
+
+| Task Type | Pattern |
+|-----------|---------|
+| Research + synthesis | Cortana → [Pulse, Sagan] → Hemingway → Sentinel |
+| Engineering + infra | Cortana → Neo → Cornelius → Cerberus → Sentinel → Milo |
+| Content campaign | Cortana → Sagan → [Hemingway, Jonny] → Zuck → Sentinel |
+| Security incident | Cortana → Cerberus → Sentinel → Milo |
+| Legal review | Cortana → Themis → Sentinel → Milo |
+| Email triage | Cortana → Hermes → Milo |
+| Financial intelligence | Cortana → [Pulse, Quant] → Hemingway → Sentinel |
+| Frontend/design | Cortana → Kairo → [Jonny optional] → Sentinel |
+| Distribution | Zuck (approved lane) → Sentinel |
+
+---
+
+## Failure Handling
 
 Per `GotchaFramework.md`:
 - First failure: silent retry with same model
 - Model unavailable: retry with fallback from `config/models.yaml`
 - Second failure: ELON reroutes or marks branch as partial
 - Required branch failure: MILO is notified
-- Three failures in 24h: CORTANA surfaces pattern summary and generates GUARDRAIL_PROPOSAL
-
-Every failure generates a `FAILURE_ENVELOPE` per `docs/Handoff_Protocol.md`.
+- Three failures in 24h: CORTANA generates a `GUARDRAIL_PROPOSAL` for MILO
 
 ---
 
-## GOTCHA Layer Mapping
-
-This system runs on the GOTCHA Framework (`docs/GotchaFramework.md`). Quick reference:
-
-| Layer | What It Is | Where It Lives |
-|-------|-----------|----------------|
-| G — Goals | Workflow definitions, router profiles, task sequences | `goals/`, `config/routing.yaml` |
-| O — Orchestration | Agent hierarchy, this document | `AGENTS.md`, `agents/*.md` |
-| T — Tools | Deterministic scripts, APIs, agent capabilities | `config/tools_manifest.md` |
-| C — Context | State, memory, decision history, active projects | `state/`, `docs/` |
-| H — Hard Prompts | Agent system prompts, handoff schemas | `agents/*.md`, `docs/Handoff_Protocol.md` |
-| A — Args | Runtime settings: models, parallelism, channels | `config/models.yaml`, `config/parallelism.yaml`, `config/channels.yaml` |
-
-**Before any task:** Check Goals (does a workflow exist?). Check Tools (does a tool exist?). Read Context. Apply Args. Delegate through the hierarchy.
-
----
-
-## Reference Documents
+## References
 
 | Document | Purpose |
 |----------|---------|
-| `agents/*.md` | Individual agent identity, responsibilities, restrictions, deliverable format |
-| `config/models.yaml` | Model assignments, escalation chains, fallback routing |
-| `config/routing.yaml` | Router profiles and reusable task graph formations |
-| `config/parallelism.yaml` | Concurrency caps, memory constraints, exclusive model rules |
-| `config/channels.yaml` | Distribution channel permissions |
-| `config/tools_manifest.md` | Tool registry with type, implementation, and permissions |
-| `docs/GotchaFramework.md` | Full operating framework — read this before building anything |
-| `docs/Handoff_Protocol.md` | Envelope schemas for agent handoffs and failure handling |
+| `GotchaFramework.md` | Full operating framework — goals, orchestration, tools, context, prompts, args |
+| `config/routing.yaml` | Runtime parallelism rules and router profiles |
+| `Agent_Model_Routing_Matrix.md` | Model tier selection, escalation rules, fallback chains |
+| `docs/Handoff_Protocol.md` | Structured envelope schemas for all agent outputs |
 | `docs/QA_Gates.md` | SENTINEL trigger conditions |
-| `docs/State_Schema.md` | CORTANA state structure |
-| `goals/` | Workflow definitions (DFB, Market Signal Scanner, etc.) |
+| `config/models.yaml` | Provider and model configuration |
+| `agents/*.md` | Individual agent personas and deliverable formats |
