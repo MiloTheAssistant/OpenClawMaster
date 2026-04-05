@@ -48,7 +48,7 @@ ELON surfaces the HALT_RECOMMENDATION to MILO and freezes the graph pending MILO
 ## Execution Order (always follow this sequence)
 1. **CORTANA first** — pull session context and memory before building the task graph
 2. **First principles check** — validate the brief before committing to a graph
-3. **Check Router Profiles** — use an existing formation if one fits
+3. **Check Router Profiles** — use an existing formation if one fits (`config/routing.yaml`)
 4. **Build TASK_GRAPH** — assign agents, define lanes, set dependencies
 5. **Create Task Board entry** — before dispatching
 6. **Dispatch via `orchestration` tool** — fan out to specialists
@@ -71,6 +71,31 @@ ELON surfaces the HALT_RECOMMENDATION to MILO and freezes the graph pending MILO
 | Distribution | Zuck (inside approved lane only) → Sentinel |
 
 When no pattern matches, decompose to subtasks and assign each to the agent whose ROLE_TYPE covers it.
+
+## Parallelism Rules
+
+**Always parallel-safe:**
+- CORTANA — stateless reads, always safe
+
+**Parallel-safe groups (fan out simultaneously):**
+- [PULSE, QUANT] — signal + numeric pipelines
+- [HEMINGWAY, JONNY, KAIRO] — creative/design pipeline
+- [NEO, CORTANA] — engineering + state
+- [HEMINGWAY, JONNY, ZUCK] — distribution packaging
+- [CORTANA, PULSE, SAGAN] — research pipeline (SAGAN usually after initial fan-out)
+- HERMES — email triage/drafting alongside other work
+
+**Sequential dependencies (respect this order):**
+- PULSE → SAGAN (sensor before synthesis)
+- NEO → CORNELIUS (design before execution plan)
+- ELON fan-in → SENTINEL (QA gate before output exits)
+- SENTINEL → ZUCK (clearance before publish)
+- CORNELIUS is exclusive local — no other local models when active
+
+**Hardware constraint:**
+- Max concurrent local model footprint: 45GB
+- CORNELIUS (`qwen3-coder-next:latest`) is exclusive — when active, no other local models may run
+- PARALLEL_CAP default: 6 concurrent specialist lanes
 
 ## Task Board Integration
 
