@@ -275,7 +275,7 @@ Produce **ONE output**:
 ```
 🌅 DAILY FINANCIAL BRIEFING — [WEEKDAY, MONTH DD, YYYY]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Delivered by Mission Control | 8:45 AM CST
+Delivered by Command Center | 8:45 AM CST
 ```
 
 **SECTION 0: 📰 MARKET HEADLINES**
@@ -391,7 +391,7 @@ Income ETFs: $SCHD X.X% | $VYM X.X% | $JEPI X.X% | $JEPQ X.X% | $XYLD X.X% | $QY
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 Mission Control | Pulse • Sagan • Hemingway • Sentinel
+🤖 Command Center | Pulse • Sagan • Hemingway • Sentinel
 [ISO timestamp] | Confidence: [High/Medium/Low] | Sources: [count]
 ```
 

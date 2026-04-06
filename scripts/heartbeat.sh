@@ -1,5 +1,5 @@
 #!/bin/bash
-# Heartbeat — Mission Control health check
+# Heartbeat — Command Center health check
 # Outputs nothing (clean) or one issue per line (problems found)
 
 issues=()

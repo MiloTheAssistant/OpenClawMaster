@@ -1,4 +1,4 @@
-# CLAUDE.md — OpenClaw Mission Control
+# CLAUDE.md — OpenClaw Command Center
 
 > Session guidance for any AI agent working in this repository.
 > Derived from the **GOTCHA Framework** (`GotchaFramework.md`) and governance rules (`AGENTS.md`).
@@ -7,7 +7,7 @@
 
 ## What This Repo Is
 
-OpenClaw Mission Control is a **governed multi-agent system** running 16 specialized AI agents across multiple model providers. The architecture follows the **GOTCHA Framework** — a 6-layer pattern that separates Goals, Orchestration, Tools, Context, Hard Prompts, and Args into distinct concerns.
+OpenClaw Command Center is a **governed multi-agent system** running 16 specialized AI agents across multiple model providers. The architecture follows the **GOTCHA Framework** — a 6-layer pattern that separates Goals, Orchestration, Tools, Context, Hard Prompts, and Args into distinct concerns.
 
 Key principle: LLMs are probabilistic, business logic is deterministic. Reliability lives in deterministic tools and structured handoffs. Flexibility lives in LLM agents with defined roles. Nobody crosses lanes.
 
@@ -53,14 +53,15 @@ John (USER)
 |---|---|
 | **Workflows** | `config/workflows.yaml`, `config/workflows_manifest.md` |
 | **Routing** | `config/routing.yaml`, `docs/Router_Profiles.md` |
-| **Tools** | `config/tools.yaml`, `config/tools_manifest.md` |
+| **Tools** | `config/tools.yaml` (canonical), `config/tools_manifest.md` (index) |
 | **Models** | `config/models.yaml`, `docs/Agent_Model_Routing_Matrix.md` |
 | **Agent Prompts** | `agents/*.md` |
 | **Governance** | `AGENTS.md`, `docs/QA_Gates.md`, `docs/Execution_Modes.md` |
 | **State** | `state/Active_Projects.md`, `state/Decision_Log.md`, `state/Artifacts_Index.md` |
 | **Memory** | `state/memory/MEMORY.md`, `state/memory/logs/YYYY-MM-DD.md` |
 | **Protocols** | `docs/Handoff_Protocol.md`, `docs/State_Schema.md`, `docs/Task_Lifecycle.md` |
-| **Runtime Config** | `config/parallelism.yaml`, `config/channels.yaml` |
+| **Parallelism** | `config/parallelism.yaml`, `docs/Parallel_Execution_Rules.md` |
+| **Channels** | `config/channels.yaml` |
 
 ---
 

@@ -1,9 +1,9 @@
-# OpenClawMaster
+# OpenClaw Command Center
 
 Source of truth for the OpenClaw multi-agent environment. Pull this repo and OpenClaw is fully wired.
 
 **Version:** OpenClaw 2026.3.24+
-**Agents:** 12 (Milo, Elon, Cortana, Pulse, Sagan, Sentinel, Sentinel-RT, Cornelius, Hemingway, Jonny, Zuck, Neo)
+**Agents:** 16 (Milo, Elon, Cortana, Sentinel, Themis, Cerberus, Pulse, Sagan, Quant, Neo, Cornelius, Hemingway, Jonny, Kairo, Zuck, Hermes)
 
 ---
 
@@ -24,12 +24,13 @@ Tag stable releases: `v2026.3.27`, etc.
 OpenClawMaster/
 ├── openclaw.json          Main config (no secrets — uses ${ENV_VAR} placeholders)
 ├── .env.example           Template for ~/.openclaw/.env
-├── agents/                Agent persona .md files (11 files)
+├── agents/                Agent persona .md files (16 agents)
 ├── goals/                 Workflow definitions (DFB chain, manifest)
 ├── scripts/               Utility scripts (heartbeat, key-check, market-data, watchdog)
 ├── launchd/               macOS daemon templates (gateway + watchdog only)
 ├── docs/                  Architecture docs (handoff protocol, QA gates, state schema)
-└── config/                Supplemental YAML configs (models, routing, channels, tools)
+├── config/                YAML configs (models, routing, channels, parallelism, tools)
+└── state/                 Live state (active projects, decision log, artifacts, memory)
 ```
 
 ---
@@ -58,7 +59,7 @@ cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/agents/*.md ~/.agents/
 cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/scripts/* ~/.openclaw/workspace/scripts/
 cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/goals/* ~/.openclaw/workspace/goals/
 
-# 7. Install macOS Companion App (replaces Mission Control)
+# 7. Install macOS Companion App (replaces Command Center)
 # Open OpenClaw-{version}.dmg from Downloads → drag to /Applications
 
 # 8. Re-auth OpenAI Codex (for Elon / gpt-5.4)
@@ -71,12 +72,14 @@ openclaw auth openai-codex
 
 | Provider | Agent(s) | Key |
 |----------|----------|-----|
-| Anthropic | Milo (main) | `ANTHROPIC_API_KEY` |
-| OpenAI Codex | Elon | OAuth (re-auth after fresh install) |
-| OpenAI | Fallback | `OPENAI_API_KEY` |
-| NVIDIA NIM | Milo, Sagan | `NVIDIA_API_KEY` |
+| Ollama (local) | Cortana, Pulse, Hemingway, Sentinel, Quant, Kairo, Zuck, Hermes, Cornelius | (no key needed) |
+| NVIDIA NIM | Milo, Elon, Neo, Themis, Cerberus | `NVIDIA_NIM_API_KEY` |
 | Perplexity | Sagan | `PERPLEXITY_API_KEY` |
-| Ollama (local) | Cortana, Pulse, Hemingway, Sentinel, Jonny, Zuck, Cornelius | (no key needed) |
+| Z.ai | Jonny, Sentinel (escalation) | `ZAI_API_KEY` |
+| OpenAI Codex | Elon (escalation), Sagan (escalation) | OAuth |
+| Ollama Pro (cloud) | Milo (fallback) | `OLLAMA_API_KEY` |
+
+**Blocked:** Anthropic API — policy conflict with OpenClaw harness.
 
 ---
 

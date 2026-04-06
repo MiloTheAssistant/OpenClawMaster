@@ -1,54 +1,46 @@
-parallel_cap: 6
-priority_bias: balanced_speed
-timeout_tolerance: moderate
+# Command Center — Parallelism Configuration
+# Runtime constraints for concurrent agent execution.
+# Referenced by: AGENTS.md, GotchaFramework.md, docs/Parallel_Execution_Rules.md
 
-# --- Local Memory Budget (Mac Mini M4 Pro, 64GB unified) ---
-local_memory_constraints:
-  total_unified_memory_gb: 64
-  os_and_services_reserved_gb: 8
-  max_concurrent_local_model_gb: 45  # safe ceiling for model VRAM
-  exclusive_models:
-    - model: qwen3-coder-next:latest
-      agent: Cornelius
-      footprint_gb: 51
-      note: Runs solo — no concurrent local models when Cornelius is active
+hardware:
+  platform: Mac Mini M4 Pro
+  total_memory_gb: 64
+  os_reserved_gb: 8
 
-# --- Parallel-Safe Groups ---
-# Agents in the same group may run concurrently on the same upstream brief.
-# Groups are additive — an agent appearing in multiple groups is safe with any listed peer.
+limits:
+  parallel_cap: 6
+  max_concurrent_local_model_gb: 45
+
+exclusive_models:
+  - agent: Cornelius
+    model: ollama_local/qwen3-coder-next:latest
+    footprint_gb: 51
+    rule: "No concurrent local models when active. Route others to cloud."
+
 parallel_safe_groups:
-  # Creative pipeline — copy, visual, and packaging
-  - [Pulse, Hemingway, Jonny]
+  creative_pipeline: [Pulse, Hemingway, Jonny]
+  engineering_state: [Neo, Cortana]
+  research_pipeline: [Cortana, Pulse, Sagan]
+  distribution: [Hemingway, Jonny, Zuck]
+  comms: [Hermes]
 
-  # Engineering + state tracking
-  - [Neo, Cortana]
-
-  # Research pipeline — Cortana is safe alongside any agent
-  - [Cortana, Pulse, Sagan]
-
-  # Distribution pipeline — packaging in parallel after Elon clearance
-  - [Hemingway, Jonny, Zuck]
-
-# --- Agents That Are Always Parallel-Safe ---
-# Cortana is stateless reads + structured writes; safe alongside anything.
 always_parallel_safe:
   - Cortana
 
-# --- Barriers (must complete before next stage) ---
-barriers:
-  - before: final_synthesis
-  - before: distribution
-  - before: execution_approval
+sequential_dependencies:
+  - [Pulse, Sagan]
+  - [Neo, Cornelius]
+  - [Elon, Sentinel]
+  - [Sentinel, Zuck]
+  - [Cerberus, execution]
+  - [Themis, contract]
 
-# --- Retry Policy ---
-retry_policy:
-  transient_failures: 1  # retry once on timeout or transient error
-  model_unavailable: fallback_to_next  # use fallback_model from models.yaml
-  required_branch_failure: reroute_or_mark_partial
-  non_required_branch_failure: proceed_with_gap
+timeouts:
+  tolerance: moderate
+  retry_on_transient: true
+  fallback_chain: models.yaml
 
-# --- Halt Conditions (immediate stop) ---
-halt_conditions:
-  - Milo_halt
-  - Sentinel_rejected
-  - workflow_policy_mismatch
+cancellation:
+  milo_halt: stops_all_downstream
+  sentinel_rejection: blocks_delivery_and_publishing
+  workflow_policy_mismatch: stops_publishing_lanes

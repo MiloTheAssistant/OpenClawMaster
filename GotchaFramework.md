@@ -1,14 +1,14 @@
 # GotchaFramework.md
 
-## Mission Control Operating Framework
+## Command Center Operating Framework
 
-This system uses the **GOTCHA Framework** — a 6-layer architecture for governed multi-agent systems. Adapted from the general-purpose GOTCHA pattern to fit Mission Control's multi-agent, multi-model operating environment on OpenClaw.
+This system uses the **GOTCHA Framework** — a 6-layer architecture for governed multi-agent systems. Adapted from the general-purpose GOTCHA pattern to fit Command Center's multi-agent, multi-model operating environment on OpenClaw.
 
 ---
 
 ## Why This Structure Exists
 
-LLMs are probabilistic. Business logic is deterministic. When agents try to do everything themselves, errors compound fast — 90% accuracy per step is ~59% accuracy over 5 steps, and Mission Control regularly chains 6+ agents per workflow.
+LLMs are probabilistic. Business logic is deterministic. When agents try to do everything themselves, errors compound fast — 90% accuracy per step is ~59% accuracy over 5 steps, and Command Center regularly chains 6+ agents per workflow.
 
 The solution:
 
@@ -29,14 +29,14 @@ Agents make smart decisions. Tools execute perfectly. Nobody crosses lanes.
 
 **What needs to happen.**
 
-| Mission Control Mapping | Location |
+| Command Center Mapping | Location |
 |---|---|
 | Workflow definitions | `config/workflows.yaml` |
 | Router profiles (reusable formations) | `config/routing.yaml` |
 | Task lifecycle stages | `docs/Task_Lifecycle.md` |
 | Task-specific prompts | `agents/tasks/*.md` |
 
-Goals define the objective, the agent sequence, which tools to invoke, expected outputs, and edge cases. In Mission Control, goals manifest as **workflow definitions** (DFB, Market Signal Scanner, Content Repurposing Engine) and **router profiles** (intelligence, campaign, engineering, executive, social_response, recurring_publish).
+Goals define the objective, the agent sequence, which tools to invoke, expected outputs, and edge cases. In Command Center, goals manifest as **workflow definitions** (DFB, Market Signal Scanner, Content Repurposing Engine) and **router profiles** (intelligence, campaign, engineering, executive, social_response, recurring_publish).
 
 **Rules:**
 - Check `config/workflows.yaml` and `config/routing.yaml` before starting any task
@@ -51,7 +51,7 @@ Goals define the objective, the agent sequence, which tools to invoke, expected 
 
 **Who coordinates execution.**
 
-In Mission Control, orchestration is a **governed hierarchy**:
+In Command Center, orchestration is a **governed hierarchy**:
 
 | Role | Agent | Responsibility |
 |---|---|---|
@@ -87,7 +87,7 @@ In Mission Control, orchestration is a **governed hierarchy**:
 
 **Deterministic scripts and APIs that do the actual work.**
 
-| Mission Control Mapping | Location |
+| Command Center Mapping | Location |
 |---|---|
 | Tool registry with implementations | `config/tools.yaml` |
 | OpenClaw plugins | `@ollama/openclaw-web-search`, etc. |
@@ -113,7 +113,7 @@ Tools fall into three categories:
 - `x_post` — manual only, Milo approval per post
 
 **Rules:**
-- Check `config/tools_manifest.md` before writing new code or scripts
+- Check `config/tools.yaml` (canonical) or `config/tools_manifest.md` (index) before writing new code or scripts
 - If a tool exists, use it — don't reinvent
 - If you create a new tool, add it to the tool registry with type, implementation, and permissions
 - When tools fail, fix and document — read the error, update the tool, add what you learned to the relevant workflow definition
@@ -126,7 +126,7 @@ Tools fall into three categories:
 
 **Reference material the system uses to reason.**
 
-| Mission Control Mapping | Location |
+| Command Center Mapping | Location |
 |---|---|
 | Agent personas and boundaries | `agents/*.md` |
 | Governance rules | `AGENTS.md` |
@@ -154,7 +154,7 @@ Context is what agents read to understand the world they're operating in. It's n
 
 **Fixed instructions that define agent identity and behavior.**
 
-| Mission Control Mapping | Location |
+| Command Center Mapping | Location |
 |---|---|
 | Agent system prompts | `agents/*.md` |
 | Task-specific prompts | `agents/tasks/*.md` |
@@ -183,14 +183,14 @@ Each agent prompt defines:
 
 **Configuration that shapes how the system behaves right now.**
 
-| Mission Control Mapping | Location |
+| Command Center Mapping | Location |
 |---|---|
 | Model selection and provider routing | `config/models.yaml` |
 | Parallelism caps and memory constraints | `config/parallelism.yaml` |
 | Channel permissions and distribution policy | `config/channels.yaml` |
 | Routing profiles and sequencing | `config/routing.yaml` |
 
-**Key args in Mission Control:**
+**Key args in Command Center:**
 - `TIER_CAP` — set by Milo per task, controls maximum model tier
 - `PARALLEL_CAP` — default 6, maximum concurrent agent branches
 - `RISK_MODE` — balanced by default, can be elevated to accuracy

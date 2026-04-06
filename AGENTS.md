@@ -1,5 +1,5 @@
 # AGENTS.md
-## Mission Control / OpenClaw — Agent Architecture & Operating Rules
+## Command Center / OpenClaw — Agent Architecture & Operating Rules
 
 > **Source of truth for agent identity, authority, delegation, and execution policy.**
 > See `config/models.yaml` for model assignments. See `config/routing.yaml` for parallelism rules.

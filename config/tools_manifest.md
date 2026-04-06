@@ -1,7 +1,7 @@
 # Tools Manifest
 
-> One-line index of all registered tools. Agents scan this before writing new code.
-> Source of truth: `config/tools.yaml`
+> Quick-scan index of all registered tools. Check here before writing new code.
+> **Canonical definitions live in `config/tools.yaml`** — this file is a summary index only.
 
 | Tool | Type | Used By | One-Line Description |
 |---|---|---|---|
