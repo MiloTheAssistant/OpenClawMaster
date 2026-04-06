@@ -31,8 +31,8 @@ All other agents operate behind the scenes and do not speak to John directly.
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **MILO** | `GOVERNOR` | Executive Assistant — intake, policy, HALT, final delivery | `ollama_local/nemotron-super-49b` |
-| **ELON** | `ORCHESTRATOR` | First Principles Orchestrator — task graphs, routing, clearance | `nim/nvidia/nemotron-3-super-120b-a12b` |
+| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, clarity, complexity scoring, HALT authority | `ollama_local/nemotron-super-49b` |
+| **ELON** | `ORCHESTRATOR` | Master First-Principles Orchestrator — task graphs, agent selection, clearance, delivery | `nim/nvidia/nemotron-3-super-120b-a12b` |
 
 ### Governance Layer
 
@@ -50,13 +50,14 @@ All other agents operate behind the scenes and do not speak to John directly.
 | **PULSE** | `SENSOR` | Signal Scout — trend detection, urgency scoring | `ollama_local/qwen3.5:9b` |
 | **SAGAN** | `ANALYST` | Deep Research — evidence-backed synthesis authority | `perplexity/sonar-reasoning-pro` |
 | **QUANT** | `ANALYST` | Financial Analyst — quantitative metrics only | `ollama_local/qwen3.5:14b` |
-| **NEO** | `BUILDER` | Lead Engineer — architecture and technical design | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
-| **CORNELIUS** | `BUILDER` | Infra Planner — execution plans and rollback paths | `ollama_local/qwen3-coder-next:latest` |
-| **HEMINGWAY** | `PUBLISHER` | Copy — research and data into readable messaging | `ollama_local/qwen3:14b` |
+| **NEO** | `BUILDER` | Lead Engineer — architecture and technical design | `codex/gpt-5.4` |
+| **CORNELIUS** | `BUILDER` | Infra Planner — execution plans and rollback paths | `ollama_local/gpt-oss:20b` |
+| **CLAWCODE** | `BUILDER` | Coding Agent — routine autonomous implementation | `ollama_local/minimax-m2-7` |
+| **HEMINGWAY** | `PUBLISHER` | Copy — research and data into readable messaging (COPY_PACKAGE) | `ollama_local/gemma4:27b` |
 | **JONNY** | `PUBLISHER` | Visual Strategy — mood, layout, prompt design | `zai/glm-5` |
-| **KAIRO** | `COMMS` | Frontend — Next.js, Tailwind, shadcn/ui | `ollama_local/qwen3-coder-next:latest` |
-| **ZUCK** | `PUBLISHER` | Social Ops — packaging and distribution | `ollama_local/qwen3.5:9b` |
-| **HERMES** | `COMMS` | Email — triage, summarization, drafting | `ollama_local/qwen3.5:14b` |
+| **KAIRO** | `COMMS` | Frontend — Next.js, Tailwind, shadcn/ui | `ollama_local/gpt-oss:20b` |
+| **ZUCK** | `PUBLISHER` | Social Ops — platform packaging (SOCIAL_PACKAGE) and distribution | `ollama_local/gemma4:27b` |
+| **HERMES** | `COMMS` | Email — triage, summarization, drafting | `ollama_local/gemma4:27b` |
 
 **Approved providers:** Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
 **Not approved:** Anthropic API (policy conflict with OpenClaw harness)
@@ -67,8 +68,8 @@ All other agents operate behind the scenes and do not speak to John directly.
 
 ```
 1. John (USER)
-2. MILO — policy, approval, HALT
-3. ELON — orchestration, routing, clearance
+2. MILO — intake, clarity, HALT authority, policy decisions
+3. ELON — orchestration, agent selection, task graphs, clearance, routine delivery to John
 4. SENTINEL / CORTANA / THEMIS / CERBERUS — within their scopes
 5. Specialist agents — within assigned tasks only
 ```
@@ -79,14 +80,14 @@ All other agents operate behind the scenes and do not speak to John directly.
 
 | ROLE_TYPE | Agents | Behavior |
 |-----------|--------|----------|
-| `GOVERNOR` | MILO | Sets policy and caps, approves high-risk actions, owns HALT exclusively |
-| `ORCHESTRATOR` | ELON | Builds task graphs, fans out/in, clears distribution — never delivers to John |
+| `EXECUTIVE_ASSISTANT` | MILO | John's 1:1 interface — intake, clarity, complexity score, HALT authority, policy decisions. Owns HALT exclusively. Delivers to John when HALT/escalation required; otherwise Elon delivers. |
+| `ORCHESTRATOR` | ELON | Master orchestrator — builds task graphs, selects specialists from first principles, fans out/in, clears runs, delivers routine results directly to John |
 | `GATE` | SENTINEL, THEMIS, CERBERUS | Must-pass checkpoints — may surface `halt_recommended: true` to ELON |
 | `STATE` | CORTANA | Always parallel-safe — stateless reads, structured writes, no policy decisions |
 | `SENSOR` | PULSE | Signal detection and scoring only — no synthesis, no analysis |
 | `ANALYST` | SAGAN, QUANT | Synthesis (SAGAN) and computation (QUANT) authority respectively |
-| `BUILDER` | NEO, CORNELIUS | Architecture → execution plan (always sequential, NEO before CORNELIUS) |
-| `PUBLISHER` | HEMINGWAY, JONNY, ZUCK | Creative → packaging → distribution |
+| `BUILDER` | NEO, CORNELIUS, CLAWCODE | Architecture (NEO) → execution plan (CORNELIUS) → implementation (CLAWCODE). Always sequential. |
+| `PUBLISHER` | HEMINGWAY, JONNY, ZUCK | Copy (HEMINGWAY) → visual direction (JONNY) → platform packaging + distribution (ZUCK) |
 | `COMMS` | HERMES, KAIRO | User-facing domain specialists, invoked directly by John |
 
 ---
@@ -106,10 +107,14 @@ All other agents operate behind the scenes and do not speak to John directly.
 ## Core Operating Rules
 
 **Command**
-- MILO handles simple requests directly (complexity score < 2, no tool calls)
-- MILO dispatches all other requests to ELON via `BRIEF_FOR_ELON`
+- MILO is John's 1:1 primary interface — all requests enter through Milo
+- MILO handles trivial requests directly (no tool calls, no ambiguity); everything else gets `BRIEF_FOR_ELON` immediately
+- MILO sets tone, clarity, and intent before briefing ELON — does not prescribe which agents are involved
 - ELON reasons from first principles before building any task graph — challenges the brief if needed
-- MILO delivers all final output to John — ELON never delivers directly
+- ELON selects which specialist agents are involved — Milo does not direct this
+- ELON delivers routine workflow results directly to John (Daily Financial Brief, Market Signal Scanner, etc.)
+- MILO is the mandatory delivery path only when HALT or escalation is active; otherwise ELON delivers
+- Exception: Plans with explicit direct delegation, or skills that name a specific agent — Milo may route directly
 
 **Governance**
 - SENTINEL evaluates outputs — never initiates, never speaks to John
@@ -121,11 +126,12 @@ All other agents operate behind the scenes and do not speak to John directly.
 - PULSE detects and scores signals — PULSE does not analyze deeply
 - SAGAN is the single research authority — all deep synthesis converges here
 - QUANT computes financial metrics only — no prose, no editorial, no recommendations
-- NEO proposes architecture — CORNELIUS converts to execution plans (always sequential)
+- NEO proposes architecture — CORNELIUS converts to execution plans — CLAWCODE implements (always sequential)
+- CLAWCODE handles routine autonomous coding; Claude Code is invoked directly for critical/complex work
 - HERMES drafts email — John sends. Always.
+- HEMINGWAY produces COPY_PACKAGE — ZUCK packages into SOCIAL_PACKAGE per platform and posts
 - ZUCK is the only posting agent — auto-post inside approved lanes only
 - KAIRO builds frontend — ZUCK handles Vercel deployment
-- CORNELIUS is exclusive local (51GB) — no other local models run concurrently
 
 **State**
 - All durable state changes route through CORTANA
@@ -138,17 +144,17 @@ All other agents operate behind the scenes and do not speak to John directly.
 ## Delegation Flow
 
 ```
-John → MILO (intake + complexity score)
-  ├── Score < 2, no tools → MILO answers directly
-  └── Score ≥ 2 or tool needed →
+John → MILO (intake, clarity, complexity score)
+  ├── Trivial, no tools → MILO answers directly
+  └── Anything else →
       MILO → ELON (BRIEF_FOR_ELON)
         ELON → CORTANA (context pull — always first)
-        ELON → [specialists] (parallel or sequential per task type)
+        ELON → [specialists] (selected by ELON from first principles)
         ELON → [THEMIS] (if legal exposure in scope)
         ELON → [CERBERUS] (if infra change or deployment in scope)
         ELON → SENTINEL (QA — always last)
-      ELON → MILO (EXECUTIVE_PACKET)
-MILO → John (final delivery)
+      ELON → John (routine delivery — EXECUTIVE_PACKET or workflow result)
+      ELON → MILO (only when HALT/escalation flagged by SENTINEL/THEMIS/CERBERUS)
 ```
 
 ---
@@ -197,14 +203,15 @@ MILO → John (final delivery)
 | Task Type | Pattern |
 |-----------|---------|
 | Research + synthesis | Cortana → [Pulse, Sagan] → Hemingway → Sentinel |
-| Engineering + infra | Cortana → Neo → Cornelius → Cerberus → Sentinel → Milo |
+| Engineering + infra | Cortana → Neo → Cornelius → ClawCode → Cerberus → Sentinel → Milo |
 | Content campaign | Cortana → Sagan → [Hemingway, Jonny] → Zuck → Sentinel |
 | Security incident | Cortana → Cerberus → Sentinel → Milo |
 | Legal review | Cortana → Themis → Sentinel → Milo |
 | Email triage | Cortana → Hermes → Milo |
 | Financial intelligence | Cortana → [Pulse, Quant] → Hemingway → Sentinel |
 | Frontend/design | Cortana → Kairo → [Jonny optional] → Sentinel |
-| Distribution | Zuck (approved lane) → Sentinel |
+| Distribution | Hemingway (COPY_PACKAGE) → Zuck (SOCIAL_PACKAGE + post, approved lane) → Sentinel |
+| Autonomous coding | ClawCode → Sentinel |
 
 ---
 

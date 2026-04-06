@@ -1,4 +1,4 @@
-# Mission Control — Model Configuration
+# Command Center — Model Configuration
 # Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
 # Anthropic API is NOT approved for OpenClaw harness use
 
@@ -19,7 +19,7 @@ providers:
   perplexity:
     base_url: https://api.perplexity.ai
     api_key_env: PERPLEXITY_API_KEY
-    priority: 1  # web-grounded research
+    priority: 1  # web-grounded research — Perplexity Pro
   zai:
     base_url: https://api.z.ai/v1
     api_key_env: ZAI_API_KEY
@@ -28,12 +28,15 @@ providers:
     base_url: https://api.ollama.com/v1
     api_key_env: OLLAMA_API_KEY
     priority: 2
+    concurrent_slots: 3  # Ollama Pro limit
+    # Cloud models available: gpt-oss:120b, minimax-m2-7, gemma4:27b (overflow)
   codex:
     base_url: https://api.openai.com/v1
     api_key_env: OPENAI_API_KEY
-    priority: 3  # reserve for heavy orchestration and coding
+    priority: 3  # reserve for architecture, heavy orchestration, precision coding
 
 agents:
+  # ── EXECUTIVE ASSISTANT ────────────────────────────────────────────────────────
   Milo:
     bias: balanced
     preference: local-first
@@ -44,14 +47,16 @@ agents:
       - complexity_gte_3
       - long_context
 
+  # ── MASTER ORCHESTRATOR ────────────────────────────────────────────────────────
   Elon:
     bias: accuracy
     preference: cloud-preferred
     primary_model: nim/nvidia/nemotron-3-super-120b-a12b
     escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5
-    local_fallback: ollama_local/qwen3.5:32b
+    supplementary_model: perplexity/sonar-pro  # current events context
 
+  # ── GATE AGENTS ────────────────────────────────────────────────────────────────
   Sentinel:
     bias: accuracy
     preference: hybrid
@@ -60,12 +65,6 @@ agents:
     cloud_on:
       - high_stakes
       - conflicting_outputs
-
-  Cortana:
-    bias: balanced
-    preference: local-first
-    primary_model: ollama_local/qwen3.5:4b
-    escalation_model: ollama_local/qwen3.5:9b
 
   Themis:
     bias: accuracy
@@ -81,74 +80,105 @@ agents:
     escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5
 
+  # ── STATE ENGINE ───────────────────────────────────────────────────────────────
+  Cortana:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/gemma4:27b
+
+  # ── SENSOR ─────────────────────────────────────────────────────────────────────
   Pulse:
     bias: speed
     preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
-    web_grounded_model: perplexity/sonar-pro
+    primary_model: ollama_local/gemma4:27b
+    web_grounded_model: perplexity/sonar-pro  # Perplexity Pro — live signal scanning
     escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
 
+  # ── ANALYSTS ───────────────────────────────────────────────────────────────────
   Sagan:
     bias: accuracy
     preference: cloud-preferred
-    primary_model: perplexity/sonar-reasoning-pro
+    primary_model: perplexity/sonar-reasoning-pro  # Perplexity Pro — deep research authority
     supplementary_model: zai/glm-5
     escalation_model: codex/gpt-5.4
-    local_fallback: ollama_local/qwen3.5:32b
+    local_fallback: ollama_local/gemma4:27b
 
   Quant:
     bias: accuracy
     preference: local-first
-    primary_model: ollama_local/qwen3.5:14b
+    primary_model: ollama_local/gemma4:27b
     escalation_model: codex/o4-mini
     fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
 
+  # ── BUILDERS ───────────────────────────────────────────────────────────────────
   Neo:
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
-    escalation_model: codex/gpt-5.3-codex
+    primary_model: codex/gpt-5.4             # ChatGPT Plus — architecture and technical design
+    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
     fallback_model: zai/glm-5
-    local_fallback: ollama_local/qwen3-coder-next
+    local_fallback: ollama_local/gpt-oss:20b
 
   Cornelius:
     bias: balanced
-    preference: local-exclusive
-    primary_model: ollama_local/qwen3-coder-next:latest
-    escalation_model: codex/gpt-5.3-codex  # only if local is down
-    escalate_bias_on_risk: accuracy
-    exclusive_local: true  # 51GB — runs solo, no concurrent local models
+    preference: local-first
+    primary_model: ollama_local/gpt-oss:20b
+    escalation_model: ollama_cloud/gpt-oss:120b  # Ollama Pro for heavy infra plans
+    fallback_model: ollama_local/minimax-m2-7
+    exclusive_local: false  # gpt-oss:20b fits within 45GB budget
 
+  ClawCode:
+    bias: accuracy
+    preference: local-first
+    primary_model: ollama_local/minimax-m2-7  # routine autonomous coding
+    local_heavy: ollama_local/gpt-oss:20b
+    cloud_heavy: ollama_cloud/gpt-oss:120b    # Ollama Pro for large codebases
+    precision_model: codex/gpt-5.4            # ChatGPT Plus for precision/critical tasks
+    note: "Routine autonomous coding via NEO/CORNELIUS delegation; Claude Code handles critical/complex"
+
+  # ── PUBLISHERS ─────────────────────────────────────────────────────────────────
   Hemingway:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3:14b
+    primary_model: ollama_local/gemma4:27b
     escalation_model: zai/glm-5
     fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
+    supplementary_model: perplexity/sonar-pro  # optional: source verification
 
   Jonny:
     bias: balanced
     preference: cloud-preferred
-    primary_model: zai/glm-5
-    fallback_model: ollama_local/qwen3:14b
-
-  Kairo:
-    bias: accuracy
-    preference: local-first
-    primary_model: ollama_local/qwen3-coder-next:latest
-    escalation_model: nim/qwen/qwen3-coder-480b-a35b-instruct  # when Cornelius holds local
-    fallback_model: codex/gpt-5.3-codex
-    note: "When CORNELIUS is active locally, route to nim escalation_model"
+    primary_model: zai/glm-5                  # visual strategy and prompt design
+    fallback_model: ollama_local/gemma4:27b
 
   Zuck:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
+    primary_model: ollama_local/gemma4:27b
     escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
+
+  # ── COMMS ──────────────────────────────────────────────────────────────────────
+  Kairo:
+    bias: accuracy
+    preference: local-first
+    primary_model: ollama_local/gpt-oss:20b   # frontend coding
+    escalation_model: codex/gpt-5.4
+    fallback_model: ollama_local/minimax-m2-7
 
   Hermes:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3.5:14b
+    primary_model: ollama_local/gemma4:27b
     escalation_model: zai/glm-5
     fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
+
+# ── Future: Microsoft MAI via Azure ──────────────────────────────────────────────
+# Not in active routing. Enable when Azure endpoint is provisioned.
+# azure_mai:
+#   base_url: https://<endpoint>.openai.azure.com
+#   api_key_env: AZURE_OPENAI_API_KEY
+#   models:
+#     transcribe-1: speech-to-text (Hermes voice intake)
+#     voice-1:      TTS output (Milo voice delivery)
+#     image-2:      multimodal vision (Jonny visual briefs, Sentinel visual QA)
+# ─────────────────────────────────────────────────────────────────────────────────
