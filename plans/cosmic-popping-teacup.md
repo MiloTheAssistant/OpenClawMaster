@@ -18,6 +18,16 @@ Re-architect the OpenClaw Command Center from scratch on a fresh Mac Mini M4 Pro
 | 7 | `phase-7-dashboard.md` | Kairo-built Command Center Dashboard — Next.js + Vercel + local, pipeline view, cost tracker |
 | 8 | `phase-8-wiring-verification.md` | Cross-repo wiring, config updates, Init Checklist, end-to-end verification |
 
+## Key Integrations with OpenClaw v2026.4.x
+
+| OpenClaw Feature | How We Use It | Plan Phase |
+|---|---|---|
+| **Durable Task Flow** (v2026.4.2) | Wire Elon's task graphs to native Task Flows — durable state, revision tracking, crash recovery | Phase 2, 8 |
+| **Dreaming** (v2026.4.5) | Nightly memory consolidation for Milo; Dreams feed 2Brain raw/ via Cortana | Phase 6 |
+| **Multi-Agent Routing** | Native sub-agent spawning for fan-out/fan-in; channel bindings for agent isolation | Phase 2, 3 |
+| **/tasks Board** (v2026.4.1) | Built-in task status tracking — complements Kairo's Pipeline View | Phase 7 |
+| **Context7 MCP** | Live documentation access for OpenClaw, Next.js, Tailwind, Vercel, Ollama | Phase 5 |
+
 ## Decisions Made During Planning
 
 - **PaperClip: DROPPED** — GOTCHA governance is stronger; dashboard gap filled by Kairo-built custom UI
@@ -25,3 +35,6 @@ Re-architect the OpenClaw Command Center from scratch on a fresh Mac Mini M4 Pro
 - **Anthropic in harness: BANNED** — Claude Code (me) handles critical work directly, outside the harness
 - **Microsoft MAI models: DEFERRED** — speech/voice/image via Azure, not core agent routing; revisit when needed
 - **Dashboard: Vercel + local** — deployed to Vercel (non-custom domain initially), also runs locally at localhost:3000, loadable in Companion App Canvas
+- **Context7: ADOPTED** — MCP server for live docs; free tier 1K requests/month covers our needs
+- **OpenClaw Dreaming: ENABLED** — complements 2Brain; Dreaming handles signals, 2Brain handles knowledge
+- **OpenClaw Task Flow: ADOPTED** — replaces custom workflow state tracking; Elon orchestrates via native Task Flows

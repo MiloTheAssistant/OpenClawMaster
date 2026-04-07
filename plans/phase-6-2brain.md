@@ -143,7 +143,43 @@ python3 query.py "SELECT agent, SUM(tokens_in + tokens_out) as total_tokens, SUM
 
 ---
 
-## 6.6 — Git LFS for Large Files
+## 6.6 — OpenClaw Dreaming Integration (v2026.4.5)
+
+OpenClaw now has built-in memory consolidation called "Dreaming" — light/deep/REM phases that promote short-term signals into durable MEMORY.md.
+
+### How They Work Together
+
+| Layer | What It Does | Where It Lives |
+|---|---|---|
+| **Dreaming** | Consolidates conversation signals → MEMORY.md | `~/.openclaw/workspace/MEMORY.md` + `DREAMS.md` |
+| **2Brain** | Structured knowledge base — wiki, sources, outputs | `~/repos/2Brain/` |
+| **Cortana** | State tracking — projects, decisions, artifacts, cost | `state/` in OpenClawMaster + brain.sqlite in 2Brain |
+
+### Configuration
+Enable Dreaming for Milo's workspace in `openclaw.json`:
+```json
+{
+  "dreaming": {
+    "enabled": true,
+    "frequency": "nightly"
+  }
+}
+```
+
+### Feed Dreaming → 2Brain
+After each Dreaming cycle, Cortana reads `DREAMS.md` and ingests notable insights into `2Brain/raw/` as source material:
+- Dreaming handles "what did we talk about recently?"
+- 2Brain handles "what do we know?"
+- Dreams feed the wiki over time — compounding knowledge
+
+### What NOT to Duplicate
+- Don't duplicate MEMORY.md in 2Brain — let Dreaming own short-term → long-term promotion
+- Don't replace Dreaming with Cortana's memory writes — they serve different purposes
+- 2Brain's `wiki/` is curated knowledge; MEMORY.md is operational context
+
+---
+
+## 6.7 — Git LFS for Large Files
 
 brain.sqlite will grow (currently ~974MB). Use Git LFS:
 ```bash

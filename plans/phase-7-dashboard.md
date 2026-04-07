@@ -29,6 +29,8 @@ Live GOTCHA flow visualization:
 - Failed stages show red with failure reason on hover
 - Framer Motion animations for agent transitions
 
+**OpenClaw native complement:** The built-in `/tasks` board (v2026.4.1+) shows raw task status (pending/running/completed/failed). Pipeline View adds the GOTCHA governance layer — showing WHERE a task is in the authority chain (Elon dispatched → Specialist working → Sentinel reviewing → Milo delivering). Use `/tasks` for operational debugging, Pipeline View for governance visibility.
+
 ### Agent Roster
 | Column | Data |
 |---|---|

@@ -58,6 +58,7 @@ OpenClawMaster/
 - `config/tools.yaml` — update script paths to point at `~/repos/ClawCode/scripts/`
 - `goals/daily_financial_briefing.md` — update output paths to `~/repos/2Brain/`
 - `openclaw.json` — remove Anthropic, update workspace paths to new home dir
+- `config/workflows.yaml` — convert workflow definitions to OpenClaw Task Flow format (v2026.4.2+)
 
 ---
 

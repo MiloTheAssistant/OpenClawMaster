@@ -124,6 +124,8 @@ Run `docs/Init_Checklist.md` with these updated checks:
   - GITHUB_TOKEN
   - FIRECRAWL_API_KEY
   - COMPOSIO_API_KEY
+  - CONTEXT7_API_KEY
+  - COMPOSIO_API_KEY
 
 ### Local Models
 - [ ] `ollama list` includes: nemotron-3-nano:4b, gemma4:27b, glm-4.7-flash, qwen3.5:35b-a3b-codingnvfp4, qwen3-coder-next:latest, gpt-oss:20b, nomic-embed-text
@@ -212,6 +214,31 @@ Run `docs/Init_Checklist.md` with these updated checks:
 ← qwen3-coder-next:latest loads (51GB)
 ← Cornelius produces EXEC_PLAN
 ← Standard models reload after completion
+```
+
+### Test 8: OpenClaw Task Flow (v2026.4.2+)
+```
+→ Trigger DFB as a Task Flow (managed mode)
+← openclaw flows shows active flow with revision tracking
+← Simulate gateway restart mid-flow
+← Flow resumes from interrupted step (not from scratch)
+← openclaw flows recover <flow-id> works if needed
+```
+
+### Test 9: Dreaming (v2026.4.5)
+```
+→ Have a multi-topic conversation with Milo across several sessions
+→ Wait for nightly Dreaming cycle (or trigger manually)
+← DREAMS.md contains plain-English summary of consolidated signals
+← MEMORY.md updated with promoted facts
+← Cortana ingests notable DREAMS.md insights into 2Brain/raw/
+```
+
+### Test 10: Context7 Documentation Access
+```
+→ Ask Neo to reference current OpenClaw Task Flow docs
+← Context7 MCP resolves live documentation
+← Neo's output references current API/config syntax (not stale training data)
 ```
 
 ---

@@ -159,7 +159,53 @@ cd ~/repos/ClawCode/dashboard && vercel link
 
 ---
 
-## 5.6 — Gmail MCP Servers (Deprecate After Composio)
+## 5.6 — Context7 (Live Documentation Access)
+
+Context7 provides an MCP server that gives agents real-time access to up-to-date documentation for any library/framework. Free tier: 1,000 requests/month.
+
+### Why This Matters
+OpenClaw updates almost daily. Next.js, Tailwind, and shadcn/ui evolve constantly. Instead of agents working from stale training data, Context7 gives them current docs on demand.
+
+### Install
+```bash
+npx ctx7@latest setup
+```
+
+### openclaw.json MCP Entry
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["@context7/mcp-server"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+### Documentation Sources to Add in Context7 Dashboard
+| Source | Used By | Priority |
+|---|---|---|
+| **OpenClaw** | Neo, Cornelius, Elon, Milo | Critical — updates daily |
+| **Next.js** | Kairo | High — dashboard build |
+| **Tailwind CSS** | Kairo | High — dashboard styling |
+| **shadcn/ui** | Kairo | High — dashboard components |
+| **Vercel** | Zuck, Kairo | Medium — deployment |
+| **Ollama** | All local agents | Medium — model management |
+| **Framer Motion** | Kairo | Medium — dashboard animations |
+
+### Environment Variable
+Add to `~/.openclaw/.env`:
+```bash
+CONTEXT7_API_KEY=your_key_here
+```
+
+---
+
+## 5.7 — Gmail MCP Servers (Deprecate After Composio)
 
 The current 2 Gmail MCP servers (ports 3333 and 3335) can be deprecated once Composio's Google adapter is verified working. Keep the config docs in ClawCode for reference but remove from `openclaw.json` MCP servers.
 
@@ -167,17 +213,20 @@ The current 2 Gmail MCP servers (ports 3333 and 3335) can be deprecated once Com
 
 ## Files to Update
 
-- `openclaw.json` — add Composio MCP server, remove Gmail MCP servers (after verification)
-- `~/.openclaw/.env` — add COMPOSIO_API_KEY
+- `openclaw.json` — add Composio MCP server, Context7 MCP server, remove Gmail MCP servers (after verification)
+- `~/.openclaw/.env` — add COMPOSIO_API_KEY, CONTEXT7_API_KEY
 - `config/tools.yaml` — add Composio-backed tools
 - `config/tools_manifest.md` — update index
 - `2Brain/data/brain.sqlite` — run schema migrations for new tables
+- Context7 dashboard — add documentation sources (OpenClaw, Next.js, Tailwind, shadcn/ui, Vercel, Ollama, Framer Motion)
 
 ---
 
 ## Verification
 
 - [ ] Composio MCP server responds in OpenClaw
+- [ ] Context7 MCP server responds in OpenClaw
+- [ ] Context7 resolves OpenClaw docs (test: query Task Flow docs)
 - [ ] GitHub operations work via Composio (test: list repos)
 - [ ] Gmail operations work via Composio (test: list inbox)
 - [ ] Vercel deployment works via Composio
