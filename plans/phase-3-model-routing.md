@@ -21,7 +21,7 @@ Assign the best 2026 models to each of the 16 agents. Balance local performance 
 
 | Model | Size | Agents Served | Notes |
 |---|---|---|---|
-| `nemotron-3-nano:4b` | ~2.5GB | Milo (always-on), Cortana | Tiny, fast, always loaded. Milo's instant-answer model. |
+| `nemotron-3-nano:4b` | ~2.5GB | Milo (fallback), Cortana | Tiny, fast, always loaded. Milo's local fallback when cloud is down. |
 | `gemma4:27b` | ~16GB | Pulse, Quant, Hemingway, Zuck, Hermes | Replaces 3 separate qwen variants. Strong reasoning, multimodal, 256K context. |
 | `glm-4.7-flash` | ~5GB | Sentinel | Proven QA gate. Keep as-is. |
 | `qwen3.5:35b-a3b-codingnvfp4` | ~18GB | Kairo | Quantized for M4 Pro. Frontend coding. |
@@ -37,7 +37,7 @@ When Cornelius activates: Ollama unloads all models except nomic-embed-text → 
 
 | Slot | Model | Agents Served | Rationale |
 |---|---|---|---|
-| 1 | `nemotron-super-49b:cloud` | Milo (escalated), Elon | Milo's escalation model. Too large for concurrent local. |
+| 1 | `gemma4:31b-cloud` | Milo (primary), general overflow | Milo's primary model. Strong 31B reasoning, 256K context, multimodal. |
 | 2 | `qwen3-coder-next:cloud` | Kairo (when Cornelius holds local), Neo (fallback) | Cloud coding when local is full. |
 | 3 | `minimax-m2.7:cloud` | ClawCode coding agent, overflow | Agentic coding tasks. SWE-Pro 56.22%. |
 
@@ -48,9 +48,18 @@ When Cornelius activates: Ollama unloads all models except nomic-embed-text → 
 | Provider | Models | Agents | Cost Model |
 |---|---|---|---|
 | **NIM Direct** | Nemotron Ultra 253B, Nemotron Super 49B v1.5, Qwen3-Coder 480B | Themis, Cerberus, Neo, Elon (escalation) | Free tier → per-token |
-| **ChatGPT Plus / Codex** | GPT-5.4, o4-mini, gpt-5.3-codex | Elon (primary), Quant (escalation), Sagan (escalation) | Included in subscription via OAuth |
+| **ChatGPT Pro / Codex** | GPT-5.4 Pro, GPT-5.3-Codex-Spark, o4-mini | Elon (primary), Quant (escalation), Sagan (escalation), coding agent (escalation) | Pro subscription — 5-20x rate limits, priority processing |
 | **Z.ai** | GLM-5 | Jonny (primary), Sentinel (escalation) | Paid account |
 | **Perplexity Pro** | Sonar Reasoning Pro | Sagan (primary) | Included in Pro subscription |
+
+### ChatGPT Pro Advantages (upgraded from Plus)
+- **5-20x higher rate limits** — intensive multi-agent workflows won't throttle
+- **GPT-5.4 Pro** — higher context, priority queue, better for Elon's orchestration
+- **GPT-5.3-Codex-Spark** — fast research preview model, ideal for day-to-day coding agent tasks
+- **Deep Research** — native agentic research capability (complements Sagan)
+- **Code Agent Tasks** — 1-30 min complex coding tasks with file read/edit + terminal (ClawCode coding agent)
+- **Automatic PR Reviews** — GitHub integration for code review automation
+- **Enhanced context/memory** — larger codebase understanding for Neo/Cornelius
 
 ---
 
@@ -59,7 +68,7 @@ When Cornelius activates: Ollama unloads all models except nomic-embed-text → 
 ### Command Layer
 | Agent | Primary | Escalation | Fallback |
 |---|---|---|---|
-| **Milo** | `ollama_local/nemotron-3-nano:4b` | `ollama_cloud/nemotron-super-49b` | `nim/nemotron-super-49b-v1.5` |
+| **Milo** | `ollama_cloud/gemma4:31b-cloud` | `nim/nemotron-super-49b-v1.5` | `ollama_local/nemotron-3-nano:4b` |
 | **Elon** | `codex/gpt-5.4` | `nim/nemotron-ultra-253b` | `ollama_cloud/nemotron-super-49b` |
 
 ### Governance Layer
@@ -90,7 +99,7 @@ When Cornelius activates: Ollama unloads all models except nomic-embed-text → 
 
 | Change | Rationale |
 |---|---|
-| Milo: nemotron-super-49b → nemotron-3-nano:4b (local) | Milo must never block. 4B stays loaded permanently. Escalates to cloud for complex tasks. |
+| Milo: nemotron-super-49b → gemma4:31b-cloud (Ollama Pro) | Strong 31B reasoning as primary. 4B local stays loaded as fallback when cloud is down. Escalates to NIM 49B for complexity >= 3. |
 | Gemma4:27b replaces qwen3:14b, qwen3.5:9b, qwen3.5:14b | One stronger model serves 6 agents. Reduces model management. |
 | Elon: NIM → Codex GPT-5.4 as primary | Frontier reasoning for orchestration. NIM becomes escalation. |
 | Cortana: qwen3.5:4b → nemotron-3-nano:4b | Shares Milo's always-loaded model. Zero overhead. |
@@ -124,10 +133,11 @@ When Cornelius activates: Ollama unloads all models except nomic-embed-text → 
 ## Verification
 
 - [ ] `ollama list` shows all local models pulled
-- [ ] Milo responds instantly on nemotron-3-nano:4b (test via Telegram)
+- [ ] Milo responds on gemma4:31b-cloud via Ollama Pro (test via Telegram)
+- [ ] Milo falls back to nemotron-3-nano:4b when cloud is unavailable
 - [ ] Gemma4:27b loads and serves Pulse/Hemingway/Zuck prompts correctly
 - [ ] Cornelius exclusive mode works (other models unload, qwen3-coder-next loads)
-- [ ] Ollama Pro cloud slots respond (test nemotron-super-49b, qwen3-coder-next, minimax-m2.7)
+- [ ] Ollama Pro cloud slots respond (test gemma4:31b-cloud, qwen3-coder-next, minimax-m2.7)
 - [ ] NIM API responds for Themis/Cerberus/Neo
 - [ ] Codex OAuth works for Elon/GPT-5.4
 - [ ] Perplexity responds for Sagan

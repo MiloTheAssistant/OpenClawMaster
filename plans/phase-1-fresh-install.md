@@ -1,27 +1,24 @@
 # Phase 1: Fresh Install — Mac Mini + 4TB Drive
 
 ## Context
-Clean slate install on Mac Mini M4 Pro (64GB) with a 4TB external drive as the home directory. Official install methods for Ollama and OpenClaw to track upstream upgrades easily.
+Clean slate install on Mac Mini M4 Pro (64GB). The 4TB external drive is ALREADY the home directory at `/Volumes/BotCentral/Users/milo`. Official install methods for Ollama and OpenClaw to track upstream upgrades easily.
 
 ---
 
-## 1.1 — Set 4TB External as Home Directory
+## 1.1 — Verify Home Directory (already set)
 
 ```bash
-# Assuming the 4TB volume mounts at /Volumes/CommandCenter
-# Create user directory structure
-sudo mkdir -p /Volumes/CommandCenter/Users/milo
+# Confirm home is on 4TB drive
+echo ~
+# Expected: /Volumes/BotCentral/Users/milo
 
-# Set as home directory for user 'milo'
-sudo dscl . -change /Users/milo NFSHomeDirectory /Users/milo /Volumes/CommandCenter/Users/milo
-
-# Reboot for change to take effect
-# After reboot, ~ resolves to /Volumes/CommandCenter/Users/milo
+df -h /Volumes/BotCentral
+# Expected: 4TB volume mounted
 ```
 
 ### Directory Layout on 4TB Drive
 ```
-/Volumes/CommandCenter/Users/milo/
+/Volumes/BotCentral/Users/milo/
 ├── .ollama/
 │   └── models/                    # Ollama model weights (100GB+)
 ├── .openclaw/
@@ -128,7 +125,9 @@ mkdir -p ~/repos && cd ~/repos
 git clone https://github.com/MiloTheAssistant/OpenClawMaster.git
 cd OpenClawMaster && git checkout claude/review-gotcha-framework-V856z && cd ..
 
-# ClawCode — create new (see Phase 2)
+# ClawCode — already exists on GitHub
+git clone https://github.com/MiloTheAssistant/ClawCode.git
+
 # 2Brain — already exists on GitHub
 git clone https://github.com/MiloTheAssistant/Second-Brain-Skill-2Brain.git 2Brain
 ```
@@ -170,7 +169,7 @@ cp -r "$SNAP/smart-memory/" ~/.openclaw/workspace/smart-memory/
 
 ## Verification
 
-- [ ] `~` resolves to `/Volumes/CommandCenter/Users/milo`
+- [ ] `~` resolves to `/Volumes/BotCentral/Users/milo`
 - [ ] `ollama list` shows all expected models
 - [ ] `openclaw --version` returns current version
 - [ ] `~/.openclaw/openclaw.json` exists

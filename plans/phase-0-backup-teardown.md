@@ -79,14 +79,31 @@ du -sh ~/.ollama/models/
 ollama list
 ```
 
-If the 4TB drive is a NEW drive (not the current home), copy the models directory:
-```bash
-cp -r ~/.ollama/models/ /Volumes/CommandCenter/Users/milo/.ollama/models/
-```
+The 4TB drive IS the current home (`/Volumes/BotCentral/Users/milo`). Models are already on it. No copying needed.
 
 ---
 
-## 0.4 — Teardown
+## 0.4 — Delete Agent User Accounts
+
+Agent-specific macOS user accounts are unnecessary. OpenClaw handles agent isolation via workspaces (`~/.openclaw/agents/<agentId>/`). OS-level accounts add overhead with zero security benefit for LLM agents.
+
+```bash
+# List agent user accounts under /Volumes/BotCentral/Users/
+ls /Volumes/BotCentral/Users/
+
+# Delete each agent account (keep only 'milo' and system accounts)
+# Review the list first — only delete accounts matching agent names
+# Example:
+# sudo dscl . -delete /Users/elon
+# sudo rm -rf /Volumes/BotCentral/Users/elon
+# Repeat for each agent account (cortana, sentinel, pulse, etc.)
+```
+
+**Keep only:** `milo` (admin), `Shared`, and any system accounts.
+
+---
+
+## 0.5 — Teardown
 
 ```bash
 # Wipe OpenClaw runtime
@@ -103,7 +120,7 @@ rm -f ~/Library/LaunchAgents/com.milo.*.plist
 
 ---
 
-## 0.5 — Security: Rotate Exposed Keys
+## 0.6 — Security: Rotate Exposed Keys
 
 The file `launchd/ai.openclaw.gateway.plist.template` in the repo contains live API keys in plaintext. After teardown and before fresh install:
 

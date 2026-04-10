@@ -10,8 +10,18 @@ With Anthropic banned from the OpenClaw harness, we need a non-Anthropic coding 
 | Tier | When | Tool | Model |
 |---|---|---|---|
 | **Critical** | Architecture decisions, security-sensitive code, production deploys, complex debugging | **Claude Code** (direct with John) | Claude Opus/Sonnet |
-| **Routine** | Script generation, config changes, file operations, test writing, boilerplate | **ClawCode coding agent** (via OpenClaw) | MiniMax M2.7 (cloud) or GPT-OSS 120B (cloud) |
+| **Heavy routine** | Multi-file changes, complex scripts, test suites, refactoring (1-30 min tasks) | **ChatGPT Pro Codex agent** | GPT-5.3-Codex-Spark or GPT-5.4 Pro |
+| **Light routine** | Script generation, config changes, file operations, boilerplate | **ClawCode coding agent** (via OpenClaw) | MiniMax M2.7 (Ollama cloud) |
 | **Fast/simple** | Linting, formatting, small fixes, one-liners | **ClawCode coding agent** (local) | GPT-OSS 20B (local Ollama) |
+
+### ChatGPT Pro Codex — New Capability
+With the Pro upgrade, Codex provides native agentic coding tasks that can:
+- Read/edit files and run terminal commands autonomously (1-30 min per task)
+- Automatic Pull Request reviews on GitHub
+- Enhanced context/memory for larger codebase understanding
+- Priority processing with 5-20x rate limits vs Plus
+
+This means **heavy routine coding can go directly to Codex** instead of routing through OpenClaw's coding agent — especially for tasks that benefit from GitHub integration and deep file access.
 
 ---
 
@@ -35,12 +45,14 @@ code_execute:
   description: "Execute coding tasks — write scripts, modify files, run tests"
   implementation: clawcode_coding_agent
   model_primary: ollama_cloud/minimax-m2.7
+  model_escalation: codex/gpt-5.3-codex-spark   # ChatGPT Pro — heavy tasks
   model_local: ollama_local/gpt-oss:20b
   permissions: [read, write]
   restrictions:
     - "MILO approval required for filesystem changes outside ClawCode/coding-agent/workspace/"
     - "Never modify OpenClawMaster files directly"
     - "Never execute shell commands without plan approval"
+    - "Escalate to Codex-Spark for tasks estimated > 5 minutes"
   workspace: ~/repos/ClawCode/coding-agent/workspace/
 ```
 

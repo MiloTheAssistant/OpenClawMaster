@@ -10,7 +10,7 @@ Everything is installed. Now wire it all together — update config files, regis
 ### openclaw.json — Major Changes
 
 1. **Remove Anthropic provider entirely**
-2. **Update all workspace paths** from `/Volumes/BotCentral/Users/milo` → new home
+2. **Update all workspace paths** to `/Volumes/BotCentral/Users/milo` (confirm existing paths are correct)
 3. **Update memorySearch.dbPath** → `~/repos/2Brain/data/brain.sqlite`
 4. **Add Composio MCP server**
 5. **Remove Gmail MCP servers** (after Composio verification)
@@ -19,7 +19,7 @@ Everything is installed. Now wire it all together — update config files, regis
 ### config/models.yaml — Rewrite
 
 Update all 16 agent entries with new model assignments from Phase 3. Key changes:
-- Milo: nemotron-3-nano:4b (local, always-on)
+- Milo: gemma4:31b-cloud (Ollama Pro primary), nemotron-3-nano:4b (local fallback)
 - Elon: codex/gpt-5.4 (primary)
 - 6 agents: gemma4:27b (local)
 - Cortana: nemotron-3-nano:4b (shares Milo's model)
@@ -109,8 +109,8 @@ Run `docs/Init_Checklist.md` with these updated checks:
 ### Infrastructure
 - [ ] Ollama serving: `curl http://localhost:11434/api/tags`
 - [ ] OpenClaw gateway: `curl http://localhost:18789/health`
-- [ ] 4TB drive mounted: `df -h /Volumes/CommandCenter`
-- [ ] Home directory correct: `echo ~` → `/Volumes/CommandCenter/Users/milo`
+- [ ] 4TB drive mounted: `df -h /Volumes/BotCentral`
+- [ ] Home directory correct: `echo ~` → `/Volumes/BotCentral/Users/milo`
 
 ### Environment Variables
 - [ ] All API keys set in `~/.openclaw/.env`:
@@ -125,7 +125,6 @@ Run `docs/Init_Checklist.md` with these updated checks:
   - FIRECRAWL_API_KEY
   - COMPOSIO_API_KEY
   - CONTEXT7_API_KEY
-  - COMPOSIO_API_KEY
 
 ### Local Models
 - [ ] `ollama list` includes: nemotron-3-nano:4b, gemma4:27b, glm-4.7-flash, qwen3.5:35b-a3b-codingnvfp4, qwen3-coder-next:latest, gpt-oss:20b, nomic-embed-text
@@ -162,7 +161,7 @@ Run `docs/Init_Checklist.md` with these updated checks:
 ### Test 1: Simple Milo Chat
 ```
 → Send Telegram message to Milo: "What time is it?"
-← Milo responds within 3 seconds (nemotron-3-nano:4b, local)
+← Milo responds (gemma4:31b-cloud via Ollama Pro, falls back to nemotron-3-nano:4b local)
 ```
 
 ### Test 2: DFB Workflow (Manual Trigger)

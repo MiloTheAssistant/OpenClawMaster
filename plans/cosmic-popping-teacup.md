@@ -2,7 +2,7 @@
 
 ## Context
 
-Re-architect the OpenClaw Command Center from scratch on a fresh Mac Mini M4 Pro (64GB) with 4TB external home drive. Three repos (OpenClawMaster, ClawCode, 2Brain), no Anthropic models in the harness, 2026 model routing, custom Kairo-built dashboard, and Karpathy-inspired Second Brain as shared memory layer.
+Re-architect the OpenClaw Command Center on Mac Mini M4 Pro (64GB) with existing 4TB home drive at `/Volumes/BotCentral/Users/milo`. Three repos (OpenClawMaster, ClawCode, 2Brain), no Anthropic models in the harness, 2026 model routing, custom Kairo-built dashboard, and Karpathy-inspired Second Brain as shared memory layer. Milo primary on `gemma4:31b-cloud` via Ollama Pro. Agent OS accounts deleted — OpenClaw workspaces handle isolation.
 
 ## Phase Files
 
