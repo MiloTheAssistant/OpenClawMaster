@@ -1,5 +1,5 @@
-# Command Center — Model Configuration
-# Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
+# Command Center — Model Configuration (Phase 3: 2026 Optimal)
+# Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pro, Z.ai
 # Anthropic API is NOT approved for OpenClaw harness use
 
 defaults:
@@ -8,14 +8,21 @@ defaults:
   risk_mode: balanced
   parallel_cap: 6
 
+# Hardware budget: 64GB unified, 45GB concurrent local max
+# Cornelius exclusive: 51GB (all other local models unload)
+
 providers:
   ollama_local:
     base_url: http://localhost:11434
     priority: 0  # always available, zero cost
+  ollama_cloud:
+    base_url: https://api.ollama.com/v1
+    api_key_env: OLLAMA_API_KEY
+    priority: 1  # Ollama Pro — 3 concurrent cloud slots
   nim:
     base_url: https://integrate.api.nvidia.com/v1
     api_key_env: NVIDIA_NIM_API_KEY
-    priority: 1  # preferred cloud — generous free tier
+    priority: 1  # generous free tier
   perplexity:
     base_url: https://api.perplexity.ai
     api_key_env: PERPLEXITY_API_KEY
@@ -24,22 +31,26 @@ providers:
     base_url: https://api.z.ai/v1
     api_key_env: ZAI_API_KEY
     priority: 2
-  ollama_cloud:
-    base_url: https://api.ollama.com/v1
-    api_key_env: OLLAMA_API_KEY
-    priority: 2
   codex:
     base_url: https://api.openai.com/v1
     api_key_env: OPENAI_API_KEY
-    priority: 3  # reserve for heavy orchestration and coding
+    priority: 3  # ChatGPT Pro — 5-20x rate limits, priority processing
+
+# Local model roster (concurrent ~42GB):
+#   nemotron-3-nano:4b    ~2.5GB  (always loaded — Milo fallback, Cortana)
+#   gemma4:26b            ~16GB   (Pulse, Quant, Hemingway, Zuck, Hermes)
+#   glm-4.7-flash         ~5GB    (Sentinel)
+#   qwen3.5:35b-nvfp4     ~18GB   (Kairo)
+#   nomic-embed-text      ~0.3GB  (embeddings)
 
 agents:
+  # --- Command Layer ---
   Milo:
     bias: balanced
-    preference: local-first
-    primary_model: ollama_local/nemotron-super-49b
-    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
-    fallback_model: ollama_cloud/nemotron-super-49b
+    preference: cloud-first
+    primary_model: ollama_cloud/gemma4:31b-cloud
+    escalation_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
+    fallback_model: ollama_local/nemotron-3-nano:4b
     escalate_to_cloud_on:
       - complexity_gte_3
       - long_context
@@ -47,16 +58,17 @@ agents:
   Elon:
     bias: accuracy
     preference: cloud-preferred
-    primary_model: nim/nvidia/nemotron-3-super-120b-a12b
-    escalation_model: codex/gpt-5.4
-    fallback_model: zai/glm-5
-    local_fallback: ollama_local/qwen3.5:32b
+    primary_model: codex/gpt-5.4
+    escalation_model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
+    fallback_model: ollama_cloud/nemotron-3-super:cloud
 
+  # --- Governance Layer ---
   Sentinel:
     bias: accuracy
     preference: hybrid
     primary_model: ollama_local/glm-4.7-flash
     escalation_model: zai/glm-5
+    fallback_model: ollama_local/gemma4:26b
     cloud_on:
       - high_stakes
       - conflicting_outputs
@@ -64,8 +76,8 @@ agents:
   Cortana:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3.5:4b
-    escalation_model: ollama_local/qwen3.5:9b
+    primary_model: ollama_local/nemotron-3-nano:4b
+    escalation_model: ollama_local/gemma4:26b
 
   Themis:
     bias: accuracy
@@ -81,74 +93,72 @@ agents:
     escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5
 
+  # --- Specialist Layer ---
   Pulse:
     bias: speed
     preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
+    primary_model: ollama_local/gemma4:26b
     web_grounded_model: perplexity/sonar-pro
-    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
+    escalation_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
 
   Sagan:
     bias: accuracy
     preference: cloud-preferred
     primary_model: perplexity/sonar-reasoning-pro
-    supplementary_model: zai/glm-5
     escalation_model: codex/gpt-5.4
-    local_fallback: ollama_local/qwen3.5:32b
+    fallback_model: zai/glm-5
 
   Quant:
     bias: accuracy
     preference: local-first
-    primary_model: ollama_local/qwen3.5:14b
+    primary_model: ollama_local/gemma4:26b
     escalation_model: codex/o4-mini
-    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
+    fallback_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
 
   Neo:
     bias: accuracy
     preference: cloud-preferred
     primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
-    escalation_model: codex/gpt-5.3-codex
-    fallback_model: zai/glm-5
-    local_fallback: ollama_local/qwen3-coder-next
+    escalation_model: codex/gpt-5.4
+    fallback_model: ollama_cloud/qwen3-coder-next:cloud
 
   Cornelius:
     bias: balanced
     preference: local-exclusive
     primary_model: ollama_local/qwen3-coder-next:latest
-    escalation_model: codex/gpt-5.3-codex  # only if local is down
-    escalate_bias_on_risk: accuracy
+    escalation_model: codex/gpt-5.4
     exclusive_local: true  # 51GB — runs solo, no concurrent local models
 
   Hemingway:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3:14b
+    primary_model: ollama_local/gemma4:26b
     escalation_model: zai/glm-5
-    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
+    fallback_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
 
   Jonny:
     bias: balanced
     preference: cloud-preferred
     primary_model: zai/glm-5
-    fallback_model: ollama_local/qwen3:14b
+    fallback_model: ollama_local/gemma4:26b
 
   Kairo:
     bias: accuracy
     preference: local-first
-    primary_model: ollama_local/qwen3-coder-next:latest
-    escalation_model: nim/qwen/qwen3-coder-480b-a35b-instruct  # when Cornelius holds local
-    fallback_model: codex/gpt-5.3-codex
-    note: "When CORNELIUS is active locally, route to nim escalation_model"
+    primary_model: ollama_local/qwen3.5:35b-a3b-codingnvfp4
+    escalation_model: nim/qwen/qwen3-coder-480b-a35b-instruct
+    fallback_model: ollama_cloud/qwen3-coder-next:cloud
+    note: "When CORNELIUS is active locally, route to escalation_model"
 
   Zuck:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
-    escalation_model: nim/nvidia/nemotron-3-super-120b-a12b
+    primary_model: ollama_local/gemma4:26b
+    escalation_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5
 
   Hermes:
     bias: balanced
     preference: local-first
-    primary_model: ollama_local/qwen3.5:14b
+    primary_model: ollama_local/gemma4:26b
     escalation_model: zai/glm-5
-    fallback_model: nim/nvidia/nemotron-3-super-120b-a12b
+    fallback_model: nim/nvidia/llama-3.3-nemotron-super-49b-v1.5

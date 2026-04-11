@@ -1,6 +1,6 @@
 ---
 name: Quant
-model: ollama_local/qwen3.5:14b
+model: ollama_local/gemma4:26b
 color: "#10b981"
 description: "Financial Data Analysis & Quantitative Intelligence"
 ---

@@ -1,6 +1,6 @@
 ---
 name: Elon
-model: nim/nvidia/nemotron-3-super-120b-a12b
+model: codex/gpt-5.4
 color: "#f59e0b"
 description: "First Principles Orchestrator — Task Graphs, Routing & Execution Clearance"
 ---

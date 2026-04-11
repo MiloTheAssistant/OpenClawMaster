@@ -167,6 +167,41 @@ tool_registry:
       - zuck_only
       - milo_approval_per_post
 
+  # --- 2Brain Tools ---
+  twobrain_read:
+    type: filesystem
+    description: "Read from 2Brain wiki, outputs, or briefings"
+    implementation: filesystem_read
+    base_path: ~/repos/2Brain/
+    permissions: [read]
+
+  twobrain_write:
+    type: filesystem
+    description: "Write to 2Brain raw/ sources or outputs/"
+    implementation: filesystem_write
+    base_path: ~/repos/2Brain/
+    permissions: [read, write]
+    restrictions:
+      - "Cortana only — other agents route through Cortana"
+      - "Never modify wiki/ directly — add to raw/ for compilation"
+
+  cost_log:
+    type: internal
+    description: "Log API cost to brain.sqlite cost_tracker table"
+    implementation: openclaw_function
+    function: cortana.cost_log
+    permissions: [write]
+
+  dashboard_deploy:
+    type: script
+    description: "Deploy Command Center Dashboard to Vercel"
+    implementation: vercel_deploy
+    script_path: ~/repos/ClawCode/dashboard/
+    permissions: [write]
+    restrictions:
+      - zuck_only
+      - milo_approval_required
+
   # --- QA Tools ---
   read_only_review:
     type: internal
@@ -175,6 +210,22 @@ tool_registry:
     function: sentinel.review
     permissions: [read]
     notes: Sentinel can read any handoff packet or artifact but cannot modify
+
+  # --- Coding Agent Tool ---
+  code_execute:
+    type: agent_capability
+    description: "Execute coding tasks — write scripts, modify files, run tests"
+    implementation: clawcode_coding_agent
+    model_primary: ollama_cloud/minimax-m2.7
+    model_escalation: codex/gpt-5.3-codex-spark
+    model_local: ollama_local/gpt-oss:20b
+    permissions: [read, write]
+    restrictions:
+      - "MILO approval required for filesystem changes outside ClawCode/coding-agent/workspace/"
+      - "Never modify OpenClawMaster files directly"
+      - "Never execute shell commands without plan approval"
+      - "Escalate to Codex-Spark for tasks estimated > 5 minutes"
+    workspace: ~/repos/ClawCode/coding-agent/workspace/
 
 agents:
   Milo:

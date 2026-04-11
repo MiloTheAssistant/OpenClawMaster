@@ -1,6 +1,6 @@
 ---
 name: Kairo
-model: ollama_local/qwen3-coder-next:latest
+model: ollama_local/qwen3.5:35b-a3b-codingnvfp4
 color: "#6366f1"
 description: "Web Design & Frontend Architecture"
 ---

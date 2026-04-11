@@ -24,4 +24,9 @@
 | discord_post | api | Zuck | Post to Discord channels via webhook — **requires standing approval** |
 | telegram_post | api | Zuck | Post to Telegram via bot API — **requires standing approval** |
 | x_post | api | Zuck | Post to X.com — **manual only, Milo approval per post, API pending** |
+| code_execute | capability | Cornelius, Neo (via Elon) | Execute coding tasks in ClawCode workspace — **Milo approval required for fs changes** |
+| twobrain_read | filesystem | Cortana, Sagan, Pulse, Hemingway, Hermes | Read from 2Brain wiki, outputs, briefings |
+| twobrain_write | filesystem | Cortana | Write to 2Brain raw/ or outputs/ — **Cortana only** |
+| cost_log | internal | Cortana | Log API cost to brain.sqlite |
+| dashboard_deploy | script | Zuck | Deploy dashboard to Vercel — **Milo approval required** |
 | read_only_review | internal | Sentinel | Read-only access to all agent outputs for QA evaluation |

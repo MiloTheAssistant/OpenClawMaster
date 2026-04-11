@@ -1,6 +1,6 @@
 ---
 name: Zuck
-model: ollama_local/qwen3.5:9b
+model: ollama_local/gemma4:26b
 color: "#0ea5e9"
 description: "Social Ops & Distribution"
 ---

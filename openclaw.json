@@ -32,7 +32,8 @@
       },
       "anthropic:default": {
         "provider": "anthropic",
-        "mode": "oauth"
+        "mode": "oauth",
+        "_note": "DISABLED — Anthropic API not approved for OpenClaw harness use per guardrails"
       }
     }
   },
@@ -515,7 +516,8 @@
         ],
         "provider": "ollama",
         "fallback": "none",
-        "model": "nomic-embed-text"
+        "model": "nomic-embed-text",
+        "dbPath": "/Volumes/BotCentral/Users/milo/repos/2Brain/data/brain.sqlite"
       },
       "contextPruning": {
         "mode": "cache-ttl",
@@ -538,18 +540,18 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
+        "model": "ollama/gemma4:31b-cloud"
       },
       {
         "id": "elon",
         "name": "Elon",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-elon",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
+        "model": "openai-codex/gpt-5.4"
       },
       {
         "id": "pulse",
         "name": "Pulse",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "model": "ollama/gemma4:26b",
         "sandbox": {
           "mode": "all"
         }
@@ -575,7 +577,7 @@
         "id": "cortana",
         "name": "Cortana",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cortana",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "model": "ollama/nemotron-3-nano:4b",
         "tools": {
           "deny": [
             "group:web",
@@ -596,7 +598,7 @@
         "id": "hemingway",
         "name": "Hemingway",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hemingway",
-        "model": "ollama/qwen3:14b",
+        "model": "ollama/gemma4:26b",
         "tools": {
           "deny": [
             "group:web",
@@ -623,7 +625,7 @@
         "id": "zuck",
         "name": "Zuck",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-zuck",
-        "model": "ollama/qwen3.5:9b",
+        "model": "ollama/gemma4:26b",
         "tools": {
           "deny": [
             "group:web",
@@ -649,19 +651,19 @@
         "id": "quant",
         "name": "Quant",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-quant",
-        "model": "openai/o4-mini"
+        "model": "ollama/gemma4:26b"
       },
       {
         "id": "hermes",
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
-        "model": "ollama/qwen3.5:35b-a3b-codingnvfp4"
+        "model": "ollama/gemma4:26b"
       },
       {
         "id": "themis",
         "name": "Themis",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-themis",
-        "model": "anthropic/claude-opus-4-5"
+        "model": "nim/nvidia/llama-3.1-nemotron-ultra-253b-v1"
       },
       {
         "id": "cerberus",
@@ -673,9 +675,13 @@
         "id": "kairo",
         "name": "Kairo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-kairo",
-        "model": "anthropic/claude-sonnet-4-6"
+        "model": "ollama/qwen3.5:35b-a3b-codingnvfp4"
       }
     ]
+  },
+  "dreaming": {
+    "enabled": true,
+    "frequency": "nightly"
   },
   "tools": {
     "profile": "coding",
@@ -778,6 +784,20 @@
   },
   "mcp": {
     "servers": {
+      "composio": {
+        "command": "npx",
+        "args": ["@composio/mcp-server"],
+        "env": {
+          "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}"
+        }
+      },
+      "context7": {
+        "command": "npx",
+        "args": ["@context7/mcp-server"],
+        "env": {
+          "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+        }
+      },
       "gmail-jds": {
         "command": "/bin/sh",
         "args": [

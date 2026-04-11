@@ -1,6 +1,6 @@
 ---
 name: Cortana
-model: ollama_local/qwen3.5:4b
+model: ollama_local/nemotron-3-nano:4b
 color: "#06b6d4"
 description: "State, Memory & Telemetry Engine"
 ---

@@ -1,6 +1,6 @@
 ---
 name: Hemingway
-model: ollama_local/qwen3:14b
+model: ollama_local/gemma4:26b
 color: "#d97706"
 description: "Copy & Messaging"
 ---

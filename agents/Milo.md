@@ -1,6 +1,6 @@
 ---
 name: Milo
-model: ollama_local/nemotron-super-49b
+model: ollama_cloud/gemma4:31b-cloud
 color: "#6366f1"
 description: "Executive Assistant — John's primary interface, intake authority, and HALT"
 ---
