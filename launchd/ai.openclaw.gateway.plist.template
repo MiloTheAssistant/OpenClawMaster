@@ -7,11 +7,11 @@
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>ANTHROPIC_API_KEY</key>
-		<string>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</string>
+		<string>${ANTHROPIC_API_KEY}</string>
 		<key>DISCORD_BOT_TOKEN</key>
-		<string>MTQ4MzE5MzIzMjcwNjc2ODk5OA.GyOY9k.mHBnIPM5jA9-wB5zzxFd8m-Fkz2e5aXBdsVsXM</string>
+		<string>${DISCORD_BOT_TOKEN}</string>
 		<key>GITHUB_TOKEN</key>
-		<string>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</string>
+		<string>${GITHUB_TOKEN}</string>
 		<key>HOME</key>
 		<string>/Volumes/BotCentral/Users/milo</string>
 		<key>NODE_EXTRA_CA_CERTS</key>
@@ -19,9 +19,9 @@
 		<key>NODE_USE_SYSTEM_CA</key>
 		<string>1</string>
 		<key>NVIDIA_API_KEY</key>
-		<string>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</string>
+		<string>${NVIDIA_API_KEY}</string>
 		<key>NVIDIA_NIM_API_KEY</key>
-		<string>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</string>
+		<string>${NVIDIA_NIM_API_KEY}</string>
 		<key>OPENCLAW_GATEWAY_PORT</key>
 		<string>18789</string>
 		<key>OPENCLAW_LAUNCHD_LABEL</key>
@@ -37,13 +37,13 @@
 		<key>OPENCLAW_WINDOWS_TASK_NAME</key>
 		<string>OpenClaw Gateway</string>
 		<key>OPENROUTER_API_KEY</key>
-		<string>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</string>
+		<string>${OPENROUTER_API_KEY}</string>
 		<key>PATH</key>
 		<string>/opt/homebrew/opt/node/bin:/Volumes/BotCentral/Users/milo/.local/bin:/Volumes/BotCentral/Users/milo/.npm-global/bin:/Volumes/BotCentral/Users/milo/bin:/Volumes/BotCentral/Users/milo/.volta/bin:/Volumes/BotCentral/Users/milo/.asdf/shims:/Volumes/BotCentral/Users/milo/.bun/bin:/Volumes/BotCentral/Users/milo/Library/Application Support/fnm/aliases/default/bin:/Volumes/BotCentral/Users/milo/.fnm/aliases/default/bin:/Volumes/BotCentral/Users/milo/Library/pnpm:/Volumes/BotCentral/Users/milo/.local/share/pnpm:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
 		<key>PERPLEXITY_API_KEY</key>
-		<string>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</string>
+		<string>${PERPLEXITY_API_KEY}</string>
 		<key>TELEGRAM_BOT_TOKEN</key>
-		<string>8774680410:AAFoqOTynJZUPvPmlBWDkSqFixsAzmfa60c</string>
+		<string>${TELEGRAM_BOT_TOKEN}</string>
 		<key>TMPDIR</key>
 		<string>/var/folders/4g/85lybl0s3kd9v5yt1khy9vmr0000gn/T/</string>
 	</dict>
