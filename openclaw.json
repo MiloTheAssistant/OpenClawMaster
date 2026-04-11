@@ -1,12 +1,12 @@
 {
   "meta": {
-    "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-28T22:37:35.356Z"
+    "lastTouchedVersion": "2026.4.10",
+    "lastTouchedAt": "2026-04-11T16:39:27.853Z"
   },
   "wizard": {
-    "lastRunAt": "2026-03-27T00:00:00.000Z",
-    "lastRunVersion": "2026.3.24",
-    "lastRunCommand": "onboard",
+    "lastRunAt": "2026-04-11T16:38:01.403Z",
+    "lastRunVersion": "2026.4.9",
+    "lastRunCommand": "doctor",
     "lastRunMode": "local"
   },
   "logging": {
@@ -32,8 +32,7 @@
       },
       "anthropic:default": {
         "provider": "anthropic",
-        "mode": "oauth",
-        "_note": "DISABLED — Anthropic API not approved for OpenClaw harness use per guardrails"
+        "mode": "oauth"
       }
     }
   },
@@ -516,8 +515,7 @@
         ],
         "provider": "ollama",
         "fallback": "none",
-        "model": "nomic-embed-text",
-        "dbPath": "/Volumes/BotCentral/Users/milo/repos/2Brain/data/brain.sqlite"
+        "model": "nomic-embed-text"
       },
       "contextPruning": {
         "mode": "cache-ttl",
@@ -679,10 +677,6 @@
       }
     ]
   },
-  "dreaming": {
-    "enabled": true,
-    "frequency": "nightly"
-  },
   "tools": {
     "profile": "coding",
     "web": {
@@ -746,13 +740,17 @@
         7758623844
       ],
       "groupPolicy": "allowlist",
-      "streaming": "partial"
+      "streaming": {
+        "mode": "partial"
+      }
     },
     "discord": {
       "enabled": true,
       "token": "${DISCORD_BOT_TOKEN}",
       "groupPolicy": "allowlist",
-      "streaming": "off",
+      "streaming": {
+        "mode": "off"
+      },
       "guilds": {
         "1471131356313555009": {
           "channels": {
@@ -786,14 +784,18 @@
     "servers": {
       "composio": {
         "command": "npx",
-        "args": ["@composio/mcp-server"],
+        "args": [
+          "@composio/mcp-server"
+        ],
         "env": {
           "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}"
         }
       },
       "context7": {
         "command": "npx",
-        "args": ["@context7/mcp-server"],
+        "args": [
+          "@context7/mcp-server"
+        ],
         "env": {
           "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
         }
@@ -827,7 +829,12 @@
     "allow": [
       "telegram",
       "discord",
-      "perplexity"
+      "perplexity",
+      "openai",
+      "anthropic",
+      "zai",
+      "ollama",
+      "memory-core"
     ],
     "entries": {
       "telegram": {
@@ -840,6 +847,18 @@
             "apiKey": "${PERPLEXITY_API_KEY}"
           }
         }
+      },
+      "openai": {
+        "enabled": true
+      },
+      "anthropic": {
+        "enabled": true
+      },
+      "zai": {
+        "enabled": true
+      },
+      "ollama": {
+        "enabled": true
       }
     },
     "installs": {}
