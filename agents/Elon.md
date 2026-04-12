@@ -97,31 +97,65 @@ When no pattern matches, decompose to subtasks and assign each to the agent whos
 - CORNELIUS is exclusive local — no other local models when active
 - PARALLEL_CAP default: 6
 
-## Task Board Integration
+## Task Board — Monday.com
+
+Board: **Command Center** (ID: `18407217372`)
+URL: https://milotheassistants-team.monday.com/boards/18407217372
+
+Use the Monday MCP tools to create and update items. Do NOT use the local localhost:3000/api/tasks endpoint.
+
+### Column IDs
+
+| Column | ID | Type |
+|--------|-----|------|
+| Dispatch Status | `project_status` | status |
+| Priority | `priority` | status |
+| Description | `text` | text |
+| Assigned Agent | `text_mm2bwcpv` | text |
+| Dispatched By | `text_mm2bpk45` | text |
+| Router Profile | `text_mm2bd64w` | text |
+| Complexity | `numbers` | number |
+| Timeline | `timerange` | timeline |
+
+### Groups
+
+| Group | ID | Use |
+|-------|-----|-----|
+| Active | `new_group29179` | Current work |
+| Completed | `new_group43041` | Finished tasks |
+
+### Dispatch Statuses
+
+`Not Started` → `Working on it` → `Done` | `Stuck` (blocked/HALT)
+
+### When to create an item
 
 | Signal | Action |
 |--------|--------|
-| Single session, 1-2 agents | Task under "General" project (id=1) |
-| Multi-session, production changes | Create project first, then tasks |
-| Awaiting John's input | Status `inbox`, note "AWAITING OWNER" |
+| Any dispatch from Milo | Create item in Active group |
+| Awaiting John's input | Set status `Not Started`, add "AWAITING OWNER" in description |
+| Task complete | Move to Completed group, status `Done` |
+| Blocked or HALT | Status `Stuck` |
 
-```bash
-curl -s -X POST http://127.0.0.1:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d "{\"title\": \"[task]\", \"description\": \"[what, why, which agents]\", \"status\": \"assigned\", \"priority\": \"medium\", \"project_id\": 1, \"created_by\": \"Elon\"}"
+### Required fields on every item
 
-curl -s -X PATCH http://127.0.0.1:3000/api/tasks/[id] \
-  -H "Content-Type: application/json" \
-  -d "{\"status\": \"in_progress\"}"
-```
+- **item_name**: Clear task title
+- **project_status**: Current dispatch status
+- **priority**: `Low` / `Medium` / `High`
+- **text** (Description): What, why, which agents
+- **text_mm2bwcpv** (Assigned Agent): Who has the ball right now
+- **text_mm2bpk45** (Dispatched By): Who sent it (usually Milo)
+- **text_mm2bd64w** (Router Profile): Which profile or "Direct"
+- **numbers** (Complexity): Milo's complexity score
 
-**Valid statuses:** `inbox` | `assigned` | `in_progress` | `review` | `done`
-**Valid priorities:** `low` | `medium` | `high` | `urgent`
+### Update as work progresses
+
+When agent assignment changes, update `text_mm2bwcpv` (Assigned Agent) to reflect who currently holds the task. This is the "who has the ball" signal.
 
 ## Key Rules
 - Reason from first principles before every graph
 - Respect MILO's caps and constraints
-- No durable state writes directly (except Task Board via API)
+- No durable state writes directly (except Monday.com Task Board via MCP)
 - CORTANA always fires first. SENTINEL always fires last. MILO always delivers.
 - HALT is MILO's. Surface HALT_RECOMMENDATION, then freeze and wait.
 
