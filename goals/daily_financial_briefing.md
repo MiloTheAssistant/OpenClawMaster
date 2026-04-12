@@ -38,7 +38,7 @@ Cortana (context gate)
 
 Execute the market data fetcher and capture its JSON output:
 ```bash
-python3 /Volumes/BotCentral/Users/milo/.openclaw/scripts/fetch_dfb_market_data.py
+python3 /Volumes/BotCentral/Users/milo/repos/ClawCode/scripts/dfb/fetch_dfb_market_data.py
 ```
 
 This returns a JSON block with live prices for BTC, MSTR, STRC, STRD, STRK, STRF, Fear & Greed Index, BTC dominance, and ETF flow placeholders. Parse it and hold as `MARKET_DATA` context.
@@ -275,7 +275,7 @@ Produce **ONE output**:
 ```
 🌅 DAILY FINANCIAL BRIEFING — [WEEKDAY, MONTH DD, YYYY]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Delivered by Mission Control | 8:45 AM CST
+Delivered by Command Center | 8:45 AM CST
 ```
 
 **SECTION 0: 📰 MARKET HEADLINES**
@@ -391,7 +391,7 @@ Income ETFs: $SCHD X.X% | $VYM X.X% | $JEPI X.X% | $JEPQ X.X% | $XYLD X.X% | $QY
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 Mission Control | Pulse • Sagan • Hemingway • Sentinel
+🤖 Command Center | Pulse • Sagan • Hemingway • Sentinel
 [ISO timestamp] | Confidence: [High/Medium/Low] | Sources: [count]
 ```
 
@@ -517,11 +517,11 @@ Fail → return to Hemingway with specific notes. One retry. Second failure → 
 **1. Write JSON to disk**
 Extract the `dfb-json` block. Write to:
 ```
-/Volumes/BotCentral/Users/milo/.openclaw/workspace/website/public/briefings/YYYY-MM-DD.json
+/Volumes/BotCentral/Users/milo/repos/2Brain/briefings/archive/YYYY-MM-DD.json
 ```
 Also write/overwrite:
 ```
-/Volumes/BotCentral/Users/milo/.openclaw/workspace/website/public/briefings/latest.json
+/Volumes/BotCentral/Users/milo/repos/2Brain/briefings/archive/latest.json
 ```
 
 **2. Trigger Vercel redeploy**

@@ -1,27 +1,45 @@
-user_facing:
-  - Milo
-  - Elon
+# Command Center — Channel Configuration
+# Defines approved distribution channels and posting policy.
+# Referenced by: workflows.yaml, AGENTS.md, GotchaFramework.md
 
-internal_only:
-  - Sentinel
-  - Cortana
-  - Pulse
-  - Sagan
-  - Neo
-  - Cornelius
-  - Hemingway
-  - Jonny
-  - Zuck
+channels:
+  discord:
+    enabled: true
+    posting_mode: standing_approved
+    servers:
+      milos_world:
+        name: "Milo's World"
+        channels:
+          dfb:
+            name: "#dfb"
+            approved_workflows: [Daily_Financial_Briefing]
+            approved_agents: [Zuck]
 
-external_distribution:
-  recurring_auto_allowed:
-    - Discord
-    - Telegram
-  manual_only:
-    - X
-  planned:
-    - channel: X_auto
-      status: pending_api_integration
-      prerequisite: X.com Developer API setup complete
-      approval_required: separate_standing_approval  # DEC-004
-      note: Will require its own Milo standing approval independent of Discord/Telegram lanes
+  telegram:
+    enabled: true
+    posting_mode: standing_approved
+    targets:
+      milo_dm:
+        type: direct_message
+        approved_for: [heartbeat, key_health, milo_notifications]
+      alerts:
+        type: group
+        approved_for: [Daily_Financial_Briefing, system_alerts]
+
+  x:
+    enabled: false  # API pending — manual only per DEC-004
+    posting_mode: manual_only
+    approval_required: per_post
+    approved_agents: [Zuck]
+
+  email:
+    enabled: true
+    posting_mode: manual_only
+    approved_agents: [Hermes]
+    note: "Hermes drafts — John sends. Always."
+
+policy:
+  default_mode: manual_only
+  standing_approval_requires: milo_policy_approval
+  sentinel_review: conditional
+  emergency_halt: true

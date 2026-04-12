@@ -1,12 +1,12 @@
 {
   "meta": {
-    "lastTouchedVersion": "2026.3.24",
-    "lastTouchedAt": "2026-03-28T22:37:35.356Z"
+    "lastTouchedVersion": "2026.4.10",
+    "lastTouchedAt": "2026-04-11T16:39:27.853Z"
   },
   "wizard": {
-    "lastRunAt": "2026-03-27T00:00:00.000Z",
-    "lastRunVersion": "2026.3.24",
-    "lastRunCommand": "onboard",
+    "lastRunAt": "2026-04-11T16:38:01.403Z",
+    "lastRunVersion": "2026.4.9",
+    "lastRunCommand": "doctor",
     "lastRunMode": "local"
   },
   "logging": {
@@ -538,18 +538,19 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
+        "model": "ollama/gemma4:31b-cloud"
       },
       {
         "id": "elon",
         "name": "Elon",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-elon",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5"
+        "model": "openai-codex/gpt-5.4"
       },
       {
         "id": "pulse",
         "name": "Pulse",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-pulse",
+        "model": "ollama/gemma4:26b",
         "sandbox": {
           "mode": "all"
         }
@@ -563,6 +564,7 @@
       {
         "id": "sentinel-rt",
         "name": "Sentinel Red Team",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sentinel-rt",
         "model": "zai/glm-5"
       },
       {
@@ -575,7 +577,7 @@
         "id": "cortana",
         "name": "Cortana",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cortana",
-        "model": "nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+        "model": "ollama/nemotron-3-nano:4b",
         "tools": {
           "deny": [
             "group:web",
@@ -596,7 +598,7 @@
         "id": "hemingway",
         "name": "Hemingway",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hemingway",
-        "model": "ollama/qwen3:14b",
+        "model": "ollama/gemma4:26b",
         "tools": {
           "deny": [
             "group:web",
@@ -623,7 +625,7 @@
         "id": "zuck",
         "name": "Zuck",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-zuck",
-        "model": "ollama/qwen3.5:9b",
+        "model": "ollama/gemma4:26b",
         "tools": {
           "deny": [
             "group:web",
@@ -649,19 +651,19 @@
         "id": "quant",
         "name": "Quant",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-quant",
-        "model": "openai/o4-mini"
+        "model": "ollama/gemma4:26b"
       },
       {
         "id": "hermes",
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
-        "model": "ollama/qwen3.5:35b-a3b-codingnvfp4"
+        "model": "ollama/gemma4:26b"
       },
       {
         "id": "themis",
         "name": "Themis",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-themis",
-        "model": "anthropic/claude-opus-4-5"
+        "model": "openai/o4-mini"
       },
       {
         "id": "cerberus",
@@ -673,7 +675,7 @@
         "id": "kairo",
         "name": "Kairo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-kairo",
-        "model": "anthropic/claude-sonnet-4-6"
+        "model": "openai-codex/gpt-5.4"
       }
     ]
   },
@@ -740,13 +742,17 @@
         7758623844
       ],
       "groupPolicy": "allowlist",
-      "streaming": "partial"
+      "streaming": {
+        "mode": "partial"
+      }
     },
     "discord": {
       "enabled": true,
       "token": "${DISCORD_BOT_TOKEN}",
       "groupPolicy": "allowlist",
-      "streaming": "off",
+      "streaming": {
+        "mode": "off"
+      },
       "guilds": {
         "1471131356313555009": {
           "channels": {
@@ -778,6 +784,24 @@
   },
   "mcp": {
     "servers": {
+      "composio": {
+        "command": "npx",
+        "args": [
+          "@composio/mcp-server"
+        ],
+        "env": {
+          "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}"
+        }
+      },
+      "context7": {
+        "command": "npx",
+        "args": [
+          "@context7/mcp-server"
+        ],
+        "env": {
+          "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+        }
+      },
       "gmail-jds": {
         "command": "/bin/sh",
         "args": [
@@ -807,7 +831,12 @@
     "allow": [
       "telegram",
       "discord",
-      "perplexity"
+      "perplexity",
+      "openai",
+      "anthropic",
+      "zai",
+      "ollama",
+      "memory-core"
     ],
     "entries": {
       "telegram": {
@@ -820,6 +849,18 @@
             "apiKey": "${PERPLEXITY_API_KEY}"
           }
         }
+      },
+      "openai": {
+        "enabled": true
+      },
+      "anthropic": {
+        "enabled": true
+      },
+      "zai": {
+        "enabled": true
+      },
+      "ollama": {
+        "enabled": true
       }
     },
     "installs": {}

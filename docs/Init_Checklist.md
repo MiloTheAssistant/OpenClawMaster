@@ -1,7 +1,7 @@
 # Init_Checklist.md
 
 ## Purpose
-Bootstrapping protocol for Mission Control. Run on fresh start, after crash, or when environment integrity is uncertain.
+Bootstrapping protocol for Command Center. Run on fresh start, after crash, or when environment integrity is uncertain.
 
 ## When to Run
 - First session in a new environment
