@@ -1,6 +1,8 @@
 # Secrets — NEVER commit
 .env
 *.env.local
+launchd/*.plist
+launchd/*.plist.template
 
 # OpenClaw runtime (managed by openclaw onboard, not version controlled)
 openclaw.json.bak*

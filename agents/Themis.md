@@ -1,6 +1,6 @@
 ---
 name: Themis
-model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
+model: openai/o4-mini
 color: "#7c3aed"
 description: "Legal Intelligence — Contract Analysis, Drafting & Compliance"
 ---

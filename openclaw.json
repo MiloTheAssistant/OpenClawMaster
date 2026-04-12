@@ -549,6 +549,7 @@
       {
         "id": "pulse",
         "name": "Pulse",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-pulse",
         "model": "ollama/gemma4:26b",
         "sandbox": {
           "mode": "all"
@@ -563,6 +564,7 @@
       {
         "id": "sentinel-rt",
         "name": "Sentinel Red Team",
+        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sentinel-rt",
         "model": "zai/glm-5"
       },
       {
@@ -661,7 +663,7 @@
         "id": "themis",
         "name": "Themis",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-themis",
-        "model": "nim/nvidia/llama-3.1-nemotron-ultra-253b-v1"
+        "model": "openai/o4-mini"
       },
       {
         "id": "cerberus",
@@ -673,7 +675,7 @@
         "id": "kairo",
         "name": "Kairo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-kairo",
-        "model": "ollama/qwen3.5:35b-a3b-codingnvfp4"
+        "model": "openai-codex/gpt-5.4"
       }
     ]
   },

@@ -1,0 +1,33 @@
+{
+  "workflows": [
+    {
+      "name": "Daily Financial Briefing",
+      "schedule": "8:45 AM CT, weekdays",
+      "status": "active",
+      "agents": ["Cortana", "Pulse", "Sagan", "Quant", "Hemingway", "Sentinel", "Milo", "Zuck"],
+      "profile": "Recurring Approved Publish"
+    },
+    {
+      "name": "Market Signal Scanner",
+      "schedule": "Every 4 hours",
+      "status": "active",
+      "agents": ["Pulse", "Sagan"],
+      "profile": "Intelligence"
+    },
+    {
+      "name": "Security Audit",
+      "schedule": "0 0 * * * (midnight CT)",
+      "status": "active",
+      "agents": ["Elon", "Cerberus"],
+      "profile": "Engineering"
+    },
+    {
+      "name": "Content Repurposing Engine",
+      "schedule": "Manual trigger",
+      "status": "active",
+      "agents": ["Sagan", "Hemingway", "Jonny", "Zuck"],
+      "profile": "Campaign"
+    }
+  ],
+  "updatedAt": "2026-04-12T16:00:00.000Z"
+}
