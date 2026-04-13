@@ -538,7 +538,7 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "ollama/gemma4:31b-cloud"
+        "model": "ollama/gemma4:31b-it-q4_K_M"
       },
       {
         "id": "elon",
@@ -751,7 +751,7 @@
       "token": "${DISCORD_BOT_TOKEN}",
       "groupPolicy": "allowlist",
       "streaming": {
-        "mode": "off"
+        "mode": "partial"
       },
       "guilds": {
         "1471131356313555009": {

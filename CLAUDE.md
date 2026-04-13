@@ -29,8 +29,8 @@ Never build a custom task graph when a formation already exists.
 
 ```
 John (USER)
- └─ MILO (Governor) — intake, policy, HALT, final delivery
-     └─ ELON (Orchestrator) — task graphs, fan-out/fan-in, clearance
+ └─ MILO (Executive Assistant) — intake, clarity, HALT authority, 1:1 interface
+     └─ ELON (First-Principles Orchestrator) — task graphs, agent selection, fan-out/fan-in, clearance
          ├─ CORTANA (State) — memory, telemetry, artifact tracking
          ├─ SENTINEL (QA Gate) — approve/reject before output exits
          ├─ THEMIS (Legal Gate) — compliance, contracts, risk
