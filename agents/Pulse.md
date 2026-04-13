@@ -1,6 +1,6 @@
 ---
 name: Pulse
-model: ollama_local/gemma4:26b
+model: ollama_local/qwen3.5:9b
 color: "#10b981"
 description: "Signal Scout — Trend Detection & Urgency Scoring"
 ---

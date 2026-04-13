@@ -1,6 +1,6 @@
 ---
 name: Kairo
-model: openai-codex/gpt-5.4
+model: codex/gpt-5.4
 color: "#6366f1"
 description: "Web Design & Frontend Architecture"
 ---

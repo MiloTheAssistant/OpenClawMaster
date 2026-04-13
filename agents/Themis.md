@@ -1,6 +1,6 @@
 ---
 name: Themis
-model: openai/o4-mini
+model: codex/o4-mini
 color: "#7c3aed"
 description: "Legal Intelligence — Contract Analysis, Drafting & Compliance"
 ---

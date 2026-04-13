@@ -1,6 +1,6 @@
 ---
 name: Jonny
-model: zai/glm-5
+model: zai/glm-5.1-turbo
 color: "#ec4899"
 description: "Visual Strategy & Prompt Design"
 ---

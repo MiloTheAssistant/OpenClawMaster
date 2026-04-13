@@ -31,8 +31,8 @@ All other agents operate behind the scenes and do not speak to John directly.
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, clarity, complexity scoring, HALT authority | `ollama_local/nemotron-super-49b` |
-| **ELON** | `ORCHESTRATOR` | Master First-Principles Orchestrator — task graphs, agent selection, clearance, delivery | `nim/nvidia/nemotron-3-super-120b-a12b` |
+| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, clarity, complexity scoring, HALT authority | `ollama_cloud/glm-5.1:cloud` |
+| **ELON** | `ORCHESTRATOR` | Master First-Principles Orchestrator — task graphs, agent selection, clearance, delivery | `codex/gpt-5.4` |
 
 ### Governance Layer
 
@@ -40,7 +40,7 @@ All other agents operate behind the scenes and do not speak to John directly.
 |-------|-----------|------|---------------|
 | **SENTINEL** | `GATE` | QA Gate — approve/reject before output exits | `ollama_local/glm-4.7-flash` |
 | **CORTANA** | `STATE` | State Engine — memory, telemetry, artifact tracking | `ollama_local/qwen3.5:4b` |
-| **THEMIS** | `GATE` | Legal Intelligence — contracts, compliance, risk | `nim/nvidia/llama-3.1-nemotron-ultra-253b-v1` |
+| **THEMIS** | `GATE` | Legal Intelligence — contracts, compliance, risk | `codex/o4-mini` |
 | **CERBERUS** | `GATE` | Security Intelligence — threats, incidents, posture | `nim/nvidia/llama-3.1-nemotron-ultra-253b-v1` |
 
 ### Specialist Layer
@@ -49,15 +49,14 @@ All other agents operate behind the scenes and do not speak to John directly.
 |-------|-----------|------|---------------|
 | **PULSE** | `SENSOR` | Signal Scout — trend detection, urgency scoring | `ollama_local/qwen3.5:9b` |
 | **SAGAN** | `ANALYST` | Deep Research — evidence-backed synthesis authority | `perplexity/sonar-reasoning-pro` |
-| **QUANT** | `ANALYST` | Financial Analyst — quantitative metrics only | `ollama_local/qwen3.5:14b` |
-| **NEO** | `BUILDER` | Lead Engineer — architecture and technical design | `codex/gpt-5.4` |
-| **CORNELIUS** | `BUILDER` | Infra Planner — execution plans and rollback paths | `ollama_local/gpt-oss:20b` |
-| **CLAWCODE** | `BUILDER` | Coding Agent — routine autonomous implementation | `ollama_local/minimax-m2-7` |
-| **HEMINGWAY** | `PUBLISHER` | Copy — research and data into readable messaging (COPY_PACKAGE) | `ollama_local/gemma4:27b` |
-| **JONNY** | `PUBLISHER` | Visual Strategy — mood, layout, prompt design | `zai/glm-5` |
-| **KAIRO** | `COMMS` | Frontend — Next.js, Tailwind, shadcn/ui | `ollama_local/gpt-oss:20b` |
-| **ZUCK** | `PUBLISHER` | Social Ops — platform packaging (SOCIAL_PACKAGE) and distribution | `ollama_local/gemma4:27b` |
-| **HERMES** | `COMMS` | Email — triage, summarization, drafting | `ollama_local/gemma4:27b` |
+| **QUANT** | `ANALYST` | Financial Analyst — quantitative metrics only | `ollama_local/gemma4:26b` |
+| **NEO** | `BUILDER` | Lead Engineer — architecture and technical design | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
+| **CORNELIUS** | `BUILDER` | Infra Planner — execution plans and rollback paths | `ollama_local/qwen3-coder-next:latest` |
+| **HEMINGWAY** | `PUBLISHER` | Copy — research and data into readable messaging (COPY_PACKAGE) | `ollama_local/gemma4:26b` |
+| **JONNY** | `PUBLISHER` | Visual Strategy — mood, layout, prompt design | `zai/glm-5.1-turbo` |
+| **KAIRO** | `COMMS` | Frontend — Next.js, Tailwind, shadcn/ui | `codex/gpt-5.4` |
+| **ZUCK** | `PUBLISHER` | Social Ops — platform packaging (SOCIAL_PACKAGE) and distribution | `ollama_local/gemma4:26b` |
+| **HERMES** | `COMMS` | Email — triage, summarization, drafting | `ollama_local/gemma4:26b` |
 
 **Approved providers:** Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
 **Not approved:** Anthropic API (policy conflict with OpenClaw harness)
