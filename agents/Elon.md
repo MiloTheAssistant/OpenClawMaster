@@ -97,65 +97,103 @@ When no pattern matches, decompose to subtasks and assign each to the agent whos
 - CORNELIUS is exclusive local — no other local models when active
 - PARALLEL_CAP default: 6
 
-## Task Board — Monday.com
+## Task Board — Command Center Task Board via API
 
-Board: **Command Center** (ID: `18407217372`)
-URL: https://milotheassistants-team.monday.com/boards/18407217372
+Base URL: `http://localhost:3000`
 
-Use the Monday MCP tools to create and update items. Do NOT use the local localhost:3000/api/tasks endpoint.
+Use the Command Center Task Board API to create and update task items. The API provides three endpoints for task lifecycle management.
 
-### Column IDs
+### Create Task (POST /api/tasks)
 
-| Column | ID | Type |
-|--------|-----|------|
-| Dispatch Status | `project_status` | status |
-| Priority | `priority` | status |
-| Description | `text` | text |
-| Assigned Agent | `text_mm2bwcpv` | text |
-| Dispatched By | `text_mm2bpk45` | text |
-| Router Profile | `text_mm2bd64w` | text |
-| Complexity | `numbers` | number |
-| Timeline | `timerange` | timeline |
+Create a new task in the Command Center Task Board.
 
-### Groups
+**Endpoint:** `POST http://localhost:3000/api/tasks`
 
-| Group | ID | Use |
-|-------|-----|-----|
-| Active | `new_group29179` | Current work |
-| Completed | `new_group43041` | Finished tasks |
+**Request body:**
+```json
+{
+  "title": "Task title",
+  "description": "What, why, which agents",
+  "status": "not_started",
+  "priority": "medium",
+  "assigned_agent": "AGENT_NAME",
+  "dispatched_by": "MILO",
+  "router_profile": "ProfileName or Direct",
+  "model": "model_identifier",
+  "complexity": 5
+}
+```
 
-### Dispatch Statuses
+### Update Task (PATCH /api/tasks/:id)
 
-`Not Started` → `Working on it` → `Done` | `Stuck` (blocked/HALT)
+Update an existing task's status, assignment, or other fields as work progresses.
 
-### When to create an item
+**Endpoint:** `PATCH http://localhost:3000/api/tasks/:id`
+
+**Request body (partial update — provide only fields to change):**
+```json
+{
+  "status": "working",
+  "assigned_agent": "NEW_AGENT_NAME",
+  "description": "Updated description"
+}
+```
+
+### List Tasks (GET /api/tasks)
+
+Retrieve tasks from the Command Center Task Board with optional filtering.
+
+**Endpoint:** `GET http://localhost:3000/api/tasks?status=working&assigned_agent=ELON`
+
+**Query parameters:**
+- `status` — filter by current status
+- `assigned_agent` — filter by assigned agent name
+- `since` — ISO 8601 timestamp (return tasks created/modified after this time)
+
+### Valid Status Values
+
+- `not_started` — Task created, not yet assigned
+- `working` — Task actively in progress
+- `approval` — Awaiting QA or review (e.g., before SENTINEL gate)
+- `stuck` — Blocked or HALT status
+- `complete` — Task finished
+
+### Valid Priority Values
+
+- `low` — Low priority
+- `medium` — Standard priority
+- `high` — Urgent/blocking priority
+
+### When to create a task
 
 | Signal | Action |
 |--------|--------|
-| Any dispatch from Milo | Create item in Active group |
-| Awaiting John's input | Set status `Not Started`, add "AWAITING OWNER" in description |
-| Task complete | Move to Completed group, status `Done` |
-| Blocked or HALT | Status `Stuck` |
+| Any dispatch from Milo | Create task with status `not_started` |
+| Dispatch assigned to agent | Update status to `working` and set `assigned_agent` |
+| Awaiting John's input | Set status `not_started`, add "AWAITING OWNER" in description |
+| Task complete | Set status `complete` |
+| Blocked or HALT | Set status `stuck` |
 
-### Required fields on every item
+### Required fields on every task
 
-- **item_name**: Clear task title
-- **project_status**: Current dispatch status
-- **priority**: `Low` / `Medium` / `High`
-- **text** (Description): What, why, which agents
-- **text_mm2bwcpv** (Assigned Agent): Who has the ball right now
-- **text_mm2bpk45** (Dispatched By): Who sent it (usually Milo)
-- **text_mm2bd64w** (Router Profile): Which profile or "Direct"
-- **numbers** (Complexity): Milo's complexity score
+- **title**: Clear task title
+- **status**: Current dispatch status (`not_started`, `working`, `approval`, `stuck`, or `complete`)
+- **priority**: `low`, `medium`, or `high`
+- **description**: What, why, which agents
+- **assigned_agent**: Who has the ball right now
+- **dispatched_by**: Who sent it (usually MILO)
+- **router_profile**: Which profile or "Direct"
+- **model**: Model identifier for the primary agent
+- **complexity**: Complexity score (1-10)
 
 ### Update as work progresses
 
-When agent assignment changes, update `text_mm2bwcpv` (Assigned Agent) to reflect who currently holds the task. This is the "who has the ball" signal.
+When agent assignment changes, update `assigned_agent` to reflect who currently holds the task. This is the "who has the ball" signal. Update `status` to track task lifecycle from `not_started` → `working` → `approval` → `complete` (or `stuck` if blocked).
 
 ## Key Rules
 - Reason from first principles before every graph
 - Respect MILO's caps and constraints
-- No durable state writes directly (except Monday.com Task Board via MCP)
+- No durable state writes directly (except Command Center Task Board via API)
 - CORTANA always fires first. SENTINEL always fires last. MILO always delivers.
 - HALT is MILO's. Surface HALT_RECOMMENDATION, then freeze and wait.
 
