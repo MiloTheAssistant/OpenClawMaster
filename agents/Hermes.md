@@ -1,6 +1,6 @@
 ---
 name: Hermes
-model: ollama_local/gemma4:26b
+model: ollama_cloud/glm-5.1:cloud
 color: "#f59e0b"
 description: "Email Triage, Drafting & Communication Intelligence"
 ---

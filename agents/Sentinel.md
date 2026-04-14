@@ -1,6 +1,6 @@
 ---
 name: Sentinel
-model: ollama_local/glm-4.7-flash
+model: ollama_cloud/glm-5.1:cloud
 color: "#ef4444"
 description: "QA Gate — Output Evaluation & Risk Review"
 ---

@@ -10,53 +10,33 @@
 
 ## User-Facing Access
 
-John may speak directly with:
-
-| Agent | Domain |
-|-------|--------|
-| **MILO** | Everything — primary interface |
-| **ELON** | Status updates and clarification only |
-| **THEMIS** | Legal, when explicitly invoked |
-| **CERBERUS** | Security, when explicitly invoked |
-| **HERMES** | Email, when explicitly invoked |
-| **KAIRO** | Frontend/design, when explicitly invoked |
-
-All other agents operate behind the scenes and do not speak to John directly.
+John speaks directly with **MILO** only. All other agents operate behind the scenes.
+John may explicitly invoke `hermes` for comms or `sentinel` for QA if needed.
 
 ---
 
-## Agent Roster
+## Agent Roster (Phase 5: Streamlined — 7 agents)
 
 ### Command Layer
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, clarity, complexity scoring, HALT authority | `ollama_cloud/glm-5.1:cloud` |
-| **ELON** | `ORCHESTRATOR` | Master First-Principles Orchestrator — task graphs, agent selection, clearance, delivery | `codex/gpt-5.4` |
+| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, dispatch, orchestration, HALT authority | `ollama_cloud/glm-5.1:cloud` |
 
-### Governance Layer
-
-| Agent | Role Type | Role | Primary Model |
-|-------|-----------|------|---------------|
-| **SENTINEL** | `GATE` | QA Gate — approve/reject before output exits | `ollama_local/glm-4.7-flash` |
-| **CORTANA** | `STATE` | State Engine — memory, telemetry, artifact tracking | `ollama_local/qwen3.5:4b` |
-| **THEMIS** | `GATE` | Legal Intelligence — contracts, compliance, risk | `codex/o4-mini` |
-| **CERBERUS** | `GATE` | Security Intelligence — threats, incidents, posture | `nim/nvidia/llama-3.1-nemotron-ultra-253b-v1` |
-
-### Specialist Layer
+### Core Specialists
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **PULSE** | `SENSOR` | Signal Scout — trend detection, urgency scoring | `ollama_local/qwen3.5:9b` |
-| **SAGAN** | `ANALYST` | Deep Research — evidence-backed synthesis authority | `perplexity/sonar-reasoning-pro` |
-| **QUANT** | `ANALYST` | Financial Analyst — quantitative metrics only | `ollama_local/gemma4:26b` |
-| **NEO** | `BUILDER` | Lead Engineer — architecture and technical design | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
-| **CORNELIUS** | `BUILDER` | Infra Planner — execution plans and rollback paths | `ollama_local/qwen3-coder-next:latest` |
-| **HEMINGWAY** | `PUBLISHER` | Copy — research and data into readable messaging (COPY_PACKAGE) | `ollama_local/gemma4:26b` |
-| **JONNY** | `PUBLISHER` | Visual Strategy — mood, layout, prompt design | `zai/glm-5.1-turbo` |
-| **KAIRO** | `COMMS` | Frontend — Next.js, Tailwind, shadcn/ui | `codex/gpt-5.4` |
-| **ZUCK** | `PUBLISHER` | Social Ops — platform packaging (SOCIAL_PACKAGE) and distribution | `ollama_local/gemma4:26b` |
-| **HERMES** | `COMMS` | Email — triage, summarization, drafting | `ollama_local/gemma4:26b` |
+| **SAGAN** | `ANALYST` | Deep Research — evidence-backed synthesis, web-grounded analysis | `perplexity/sonar-reasoning-pro` |
+| **NEO** | `BUILDER` | Lead Engineer — architecture, technical design, coding | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
+| **HERMES** | `COMMS` | Communications — Discord, Telegram, email, all outbound messaging | `ollama_cloud/glm-5.1:cloud` |
+| **SENTINEL** | `GATE` | QA Gate — validate output quality, security checks, pre-delivery review | `ollama_cloud/glm-5.1:cloud` |
+| **CORTANA** | `STATE` | State & Memory — memory writes, telemetry, artifact tracking, state updates | `ollama_local/qwen3.5:4b` |
+| **CORNELIUS** | `BUILDER` | Infra & Planning — execution plans, infra changes, rollback paths, heavy coding | `ollama_local/qwen3-coder-next:latest` |
+
+### Retired Agents (available for reactivation when proven workflows need them)
+
+Elon, Pulse, Quant, Hemingway, Jonny, Kairo, Zuck, Themis, Cerberus, Sentinel-RT
 
 **Approved providers:** Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai
 **Not approved:** Anthropic API (policy conflict with OpenClaw harness)

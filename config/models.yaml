@@ -1,16 +1,14 @@
-# Command Center — Model Configuration (Phase 4: Dual-Cloud Resilience)
+# Command Center — Model Configuration (Phase 5: Streamlined)
+# 7 active agents, dual-cloud resilience, simplified matrix
+#
 # Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pro, Z.ai
 # Anthropic API is NOT approved for OpenClaw harness use
-#
-# Cloud strategy: split escalation/fallback across Ollama Cloud + Z.ai
-# so no single provider is a bottleneck during parallel fan-outs.
-# Local → Ollama Cloud → Z.ai (or reverse) at every layer.
 
 defaults:
   strategy: hybrid
   execution_mode: simulate
   risk_mode: balanced
-  parallel_cap: 6
+  parallel_cap: 4  # reduced from 6 — fewer agents, tighter coordination
 
 # Hardware budget: 64GB unified, 45GB concurrent local max
 # Cornelius exclusive: 48.2GB (all other local models unload)
@@ -30,90 +28,31 @@ providers:
   perplexity:
     base_url: https://api.perplexity.ai
     api_key_env: PERPLEXITY_API_KEY
-    priority: 1  # web-grounded research — Perplexity Pro
+    priority: 1  # web-grounded research
   zai:
     base_url: https://api.z.ai/v1
     api_key_env: ZAI_API_KEY
-    priority: 1  # GLM-5.1-turbo — separate rate limits from Ollama
+    priority: 1  # separate rate limits from Ollama
   codex:
     base_url: https://api.openai.com/v1
     api_key_env: OPENAI_API_KEY
-    priority: 2  # ChatGPT Pro — 5-20x rate limits, priority processing
+    priority: 2  # ChatGPT Pro
 
-# Local model roster (concurrent ~42GB):
-#   qwen3.5:4b            ~3.2GB  (Milo primary — subagent-driven intake, Cortana)
-#   qwen3.5:9b            ~6.1GB  (Pulse)
-#   gemma4:26b            ~16.8GB (Hemingway, Zuck, Hermes, Quant)
-#   glm-4.7-flash         ~17.7GB (Sentinel)
-#   nemotron-3-nano:4b    ~2.6GB  (nuclear fallback)
-#   nomic-embed-text      ~0.3GB  (embeddings)
-# Cornelius exclusive: qwen3-coder-next ~48.2GB (runs solo)
-#
-# Cloud models available:
-#   Ollama Cloud: glm-5.1:cloud, minimax-m2.7:cloud, glm-5:cloud,
-#                 gemma4:31b-cloud, gpt-oss:120b-cloud, nemotron-3-super:cloud
-#   Z.ai:        glm-5.1-turbo, glm-5.1v-turbo
-#   NIM:         nemotron-ultra-253b, nemotron-super-49b, qwen3-coder-480b
-#   Codex:       gpt-5.4, o4-mini
-#   Perplexity:  sonar-pro, sonar-reasoning-pro
+# Active models:
+#   Cloud: glm-5.1:cloud (Ollama), glm-5.1-turbo (Z.ai), sonar-reasoning-pro (Perplexity)
+#   Local: qwen3.5:4b (3.2GB, Cortana), qwen3-coder-next (48.2GB, Cornelius exclusive)
+#   NIM: qwen3-coder-480b (Neo)
 
 agents:
-  # --- Command Layer ---
+  # --- Command ---
   Milo:
     bias: balanced
-    preference: cloud-first  # smart enough to score complexity and dispatch ELON properly
+    preference: cloud-first
     primary_model: ollama_cloud/glm-5.1:cloud
-    escalation_model: zai/glm-5.1-turbo
-    fallback_model: ollama_local/qwen3.5:4b
-    # GLM-5.1 has the intelligence ceiling for proper BRIEF_FOR_ELON creation
-    # Dual-cloud resilience: Ollama Cloud → Z.ai → local fallback
-
-  Elon:
-    bias: accuracy
-    preference: cloud-preferred
-    primary_model: codex/gpt-5.4
-    escalation_model: ollama_cloud/minimax-m2.7:cloud
+    escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5.1-turbo
 
-  # --- Governance Layer ---
-  Sentinel:
-    bias: accuracy
-    preference: hybrid
-    primary_model: ollama_local/glm-4.7-flash
-    escalation_model: ollama_cloud/glm-5.1:cloud
-    fallback_model: zai/glm-5.1-turbo
-    cloud_on:
-      - high_stakes
-      - conflicting_outputs
-
-  Cortana:
-    bias: balanced
-    preference: local-first
-    primary_model: ollama_local/qwen3.5:4b
-    escalation_model: ollama_local/gemma4:26b
-
-  Themis:
-    bias: accuracy
-    preference: cloud-preferred
-    primary_model: codex/o4-mini
-    escalation_model: zai/glm-5.1-turbo
-    fallback_model: ollama_cloud/glm-5.1:cloud
-
-  Cerberus:
-    bias: accuracy
-    preference: cloud-preferred
-    primary_model: nim/nvidia/llama-3.1-nemotron-ultra-253b-v1
-    escalation_model: zai/glm-5.1-turbo
-    fallback_model: ollama_cloud/glm-5.1:cloud
-
-  # --- Specialist Layer ---
-  Pulse:
-    bias: speed
-    preference: local-first
-    primary_model: ollama_local/qwen3.5:9b
-    web_grounded_model: perplexity/sonar-pro
-    escalation_model: ollama_cloud/glm-5.1:cloud
-
+  # --- Core Specialists ---
   Sagan:
     bias: accuracy
     preference: cloud-preferred
@@ -121,57 +60,36 @@ agents:
     escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5.1-turbo
 
-  Quant:
-    bias: accuracy
-    preference: local-first
-    primary_model: ollama_local/gemma4:26b
-    escalation_model: codex/o4-mini
-    fallback_model: ollama_cloud/glm-5.1:cloud
-
   Neo:
     bias: accuracy
     preference: cloud-preferred
     primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
-    escalation_model: ollama_cloud/minimax-m2.7:cloud
-    fallback_model: codex/gpt-5.4
+    escalation_model: codex/gpt-5.4
+    fallback_model: ollama_cloud/minimax-m2.7:cloud
+
+  Hermes:
+    bias: balanced
+    preference: cloud-first
+    primary_model: ollama_cloud/glm-5.1:cloud
+    escalation_model: zai/glm-5.1-turbo
+    fallback_model: ollama_local/qwen3.5:4b
+
+  Sentinel:
+    bias: accuracy
+    preference: cloud-first
+    primary_model: ollama_cloud/glm-5.1:cloud
+    escalation_model: zai/glm-5.1-turbo
+    fallback_model: ollama_local/qwen3.5:4b
+
+  Cortana:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:4b
+    escalation_model: ollama_cloud/glm-5.1:cloud
 
   Cornelius:
     bias: balanced
     preference: local-exclusive
     primary_model: ollama_local/qwen3-coder-next:latest
     escalation_model: ollama_cloud/minimax-m2.7:cloud
-    exclusive_local: true  # 48.2GB — runs solo, no concurrent local models
-
-  Hemingway:
-    bias: balanced
-    preference: local-first
-    primary_model: ollama_local/gemma4:26b
-    escalation_model: zai/glm-5.1-turbo
-    fallback_model: ollama_cloud/glm-5.1:cloud
-
-  Jonny:
-    bias: balanced
-    preference: cloud-preferred
-    primary_model: zai/glm-5.1-turbo
-    fallback_model: ollama_cloud/glm-5.1:cloud
-
-  Kairo:
-    bias: accuracy
-    preference: cloud-preferred
-    primary_model: codex/gpt-5.4
-    escalation_model: ollama_cloud/minimax-m2.7:cloud
-    fallback_model: zai/glm-5.1-turbo
-
-  Zuck:
-    bias: balanced
-    preference: local-first
-    primary_model: ollama_local/gemma4:26b
-    escalation_model: ollama_cloud/glm-5.1:cloud
-    fallback_model: zai/glm-5.1-turbo
-
-  Hermes:
-    bias: balanced
-    preference: local-first
-    primary_model: ollama_local/gemma4:26b
-    escalation_model: zai/glm-5.1-turbo
-    fallback_model: ollama_cloud/glm-5.1:cloud
+    exclusive_local: true  # 48.2GB — runs solo
