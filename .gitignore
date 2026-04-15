@@ -37,3 +37,6 @@ __pycache__/
 memory/
 smart-memory/
 state/sessions/
+
+# Claude Code temporary worktrees — created by Plan/Explore agents, ephemeral
+.claude/worktrees/
