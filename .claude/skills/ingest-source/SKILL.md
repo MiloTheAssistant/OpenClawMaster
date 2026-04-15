@@ -40,6 +40,18 @@ When a new file has been added to `2Brain/raw/` and needs to be processed into t
    YYYY-MM-DD | ingest | source: <filename>, pages created: [list], pages updated: [list]
    ```
 
+8. **Push a summary to Mission Control Knowledge board** so the article is discoverable from the same dashboard used for tasks and approvals. Run:
+   ```bash
+   /Volumes/BotCentral/Users/milo/repos/OpenClawMaster/tools/scripts/mc-push.sh task \
+     --board knowledge \
+     --title "<summary page title>" \
+     --description "**Summary:** <one-line summary>\n\n**Sources:** <raw/ filename>\n\n**Wiki link:** http://localhost:3200/wiki/<slug>\n\n**Created:** YYYY-MM-DD" \
+     --priority medium \
+     --status done \
+     --field source_agent=ingest
+   ```
+   This creates a task card in the Knowledge board that links back to the 2Brain wiki viewer at `localhost:3200/wiki/<slug>`.
+
 ## Checklist
 - [ ] Source file read in full
 - [ ] Key takeaways discussed or logged
@@ -48,3 +60,4 @@ When a new file has been added to `2Brain/raw/` and needs to be processed into t
 - [ ] [[wiki-links]] added throughout
 - [ ] INDEX.md updated
 - [ ] log.md entry appended
+- [ ] Mission Control Knowledge board task created

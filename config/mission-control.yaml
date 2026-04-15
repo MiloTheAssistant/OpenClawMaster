@@ -1,0 +1,41 @@
+# Mission Control integration config
+# Board and custom field UUIDs used by tools/scripts/mc-push.sh and cron jobs.
+# Auth token resolved via OpenClaw SecretRef against ~/.openclaw/secrets.json.
+
+api_base: http://localhost:8000/api/v1
+organization_id: dc239b13-1bec-451a-86f3-1b926627d774
+gateway_id: 034b7b26-32f9-498a-82eb-4ac60b5a17fb
+
+auth_token:
+  source: file
+  provider: default
+  id: /MISSION_CONTROL_AUTH_TOKEN
+
+# Board UUIDs — created 2026-04-15 via POST /api/v1/boards
+boards:
+  ops: 2f230921-95c5-40b0-b6a6-84a8ac7c4cc5           # day-to-day dispatched work
+  approvals: 2eb7189c-b4ae-4f0e-a338-19c532289aa6     # pending human-in-the-loop
+  decisions: 8887686a-a9a1-4d47-8914-094a23ef8335     # synced Decision_Log.md
+  knowledge: e4a15ef8-8925-4140-9c11-a765b4f8fdb1     # 2Brain wiki + briefings
+
+# Custom field UUIDs — all bound to all 4 boards above
+custom_fields:
+  complexity_score: dee1075d-3210-4396-91c4-f1da2b6b3171  # integer
+  model_used: 7664110d-c2b0-4e32-9899-dedcad5a2c4c        # text
+  token_count: 9d4b3cb4-033c-408f-99f7-876055a9a660       # integer
+  source_agent: 2ca22dea-3e9f-4652-829f-bdb3e5cdb319      # text
+  dispatched_by: c5a4551a-a30f-4f82-8e04-8e3642ac9755     # text
+  run_id: edada5e5-f981-4b82-ad30-f2c26e54c592            # text
+
+# Valid task statuses (Mission Control enum)
+task_statuses:
+  - inbox
+  - in_progress
+  - review
+  - done
+
+# Valid priorities
+task_priorities:
+  - low
+  - medium
+  - high
