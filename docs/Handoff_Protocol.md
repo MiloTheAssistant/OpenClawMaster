@@ -49,7 +49,7 @@ HANDOFF_PACKET:
 - **context_overflow** — input exceeds model's context window
 
 ### Failure Envelope
-When an agent fails, Elon (or the dispatching agent) generates a failure envelope:
+When an agent fails, Milo (the dispatching agent) generates a failure envelope:
 
 FAILURE_ENVELOPE:
   TASK_ID:
@@ -58,7 +58,7 @@ FAILURE_ENVELOPE:
   FAILURE_TYPE: timeout | malformed_output | confidence_below_threshold | model_unavailable | context_overflow
   RETRY_COUNT:
   MAX_RETRIES: 1  # per parallelism.yaml retry_policy
-  FALLBACK_ACTION: retry | reroute | mark_partial | escalate_to_milo
+  FALLBACK_ACTION: retry | reroute | mark_partial | approval_task_to_mc
   FALLBACK_MODEL:  # if model_unavailable, specify fallback from models.yaml
   ERROR_DETAIL:
   LAST_GOOD_STATE_REF:  # Cortana state key for rollback reference
@@ -66,10 +66,10 @@ FAILURE_ENVELOPE:
 
 ### Failure Resolution Rules
 1. **First failure (transient):** Retry once with same model. If model_unavailable, retry with fallback_model from models.yaml.
-2. **Second failure (same task):** Elon reroutes to an alternative agent or marks the branch as partial.
-3. **Required branch failure:** If the failed branch is required for fan-in (e.g., Sagan in DFB), Elon marks the entire packet as partial and notifies Milo.
-4. **Non-required branch failure:** Elon proceeds with available results and notes the gap in the executive packet.
-5. **Milo escalation:** Any failure that blocks a standing-approved workflow or involves high-risk output triggers Milo notification.
+2. **Second failure (same task):** Milo reroutes to an alternative agent or marks the step as partial.
+3. **Required step failure:** If the failed step is required for the workflow (e.g., Sagan in DFB), Milo marks the entire dispatch as partial and decides next action.
+4. **Non-required step failure:** Milo proceeds with available results and notes the gap in the final compile.
+5. **Standing workflow failure:** Any failure that blocks a standing-approved workflow triggers an approval task in Mission Control's Approvals board.
 
 ### Cortana Logging on Failure
 Cortana automatically logs every failure envelope as a `recent_failures` state entry with:
@@ -81,6 +81,6 @@ Cortana automatically logs every failure envelope as a `recent_failures` state e
 
 ### Notification Rules
 - **First transient failure:** No notification (silent retry).
-- **Reroute or mark_partial:** Elon logs and proceeds. Cortana records.
-- **Required branch failure in standing workflow:** Milo is notified.
-- **Three or more failures in same workflow within 24h:** Milo is notified with pattern summary from Cortana.
+- **Reroute or mark_partial:** Milo logs via Cortana and proceeds.
+- **Required step failure in standing workflow:** Mission Control Approvals task is created via `mc-push`.
+- **Three or more failures in same workflow within 24h:** Cortana surfaces a pattern summary to Milo.

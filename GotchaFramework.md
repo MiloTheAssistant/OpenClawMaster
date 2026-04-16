@@ -51,30 +51,29 @@ Goals define the objective, the agent sequence, which tools to invoke, expected 
 
 **Who coordinates execution.**
 
-In Command Center, orchestration is a **governed hierarchy**:
+Phase 5: Milo is both the intake and the orchestrator. Elon retired — Milo absorbed his task-graph and dispatch responsibilities. The orchestration model is a **streamlined governed hierarchy**:
 
 | Role | Agent | Responsibility |
 |---|---|---|
-| Executive Assistant | Milo | Intake, triage, caps, approvals, HALT authority, final delivery |
-| First Principles Orchestrator | Elon | Task graphs, fan-out/fan-in, run clearance, executive packets |
-| QA Gate | Sentinel | Evaluation only — never initiates, never speaks to John |
+| Executive Assistant & Orchestrator | Milo | Intake, dispatch, task sequencing, HALT authority, delivery to John |
+| QA Gate | Sentinel | Output evaluation — never initiates, never speaks to John |
 | State Engine | Cortana | Tracks state and telemetry — never decides policy |
-| Legal Gate | Themis | Legal intelligence and compliance — may recommend HALT |
-| Security Gate | Cerberus | Security intelligence and incident triage — may recommend HALT |
+| Research | Sagan | Deep research and synthesis authority |
+| Engineering | Neo | Architecture and coding |
+| Infra / Heavy Coding | Cornelius | Execution plans with rollback; runs solo (~48GB) |
+| Communications | Hermes | All outbound comms — Discord, Telegram, email |
 
 **Orchestration rules:**
-- Milo handles simple requests directly (complexity score < 2, no tool calls)
-- Complex or cross-domain requests get briefed to Elon via `BRIEF_FOR_ELON`
-- Elon reasons from first principles before building any task graph — challenges the brief if needed
-- Elon builds task graphs and dispatches to specialists — never compiles results for John
-- Only Milo speaks to John by default; domain specialists (Themis, Cerberus, Hermes, Kairo) speak when explicitly invoked
-- Specialists return structured envelopes only — no side effects, no direct user messaging
-- Elon owns fan-out and fan-in coordination
+- Milo handles simple requests directly (complexity < 2, no tool calls)
+- Complex or multi-step requests: Milo dispatches sequentially via `sessions_spawn` with `agentId`
+- Milo compiles each specialist's output before dispatching the next step
+- Only Milo speaks to John; specialists return structured results
+- Specialists return structured envelopes — no side effects, no direct user messaging
 - Barriers must exist before final synthesis, distribution, and execution approval
-- HALT is owned exclusively by Milo — Elon may surface HALT_RECOMMENDATION and freeze graph, but Milo decides
+- HALT is owned exclusively by Milo — specialists may flag `halt_recommended: true`, but only Milo stops work
 
 **Model selection at orchestration time:**
-- Elon reads `config/models.yaml` to resolve which model serves each agent
+- Milo reads `config/models.yaml` to resolve which model serves each specialist
 - Primary model is used by default
 - Escalation model is used when bias triggers fire (complexity, risk, conflicting outputs)
 - Fallback model is used when primary is unavailable
@@ -103,7 +102,7 @@ Tools fall into three categories:
 - `docs_read` / `code_read` — filesystem access
 
 **2. Agent capabilities** — LLM reasoning wrapped in a tool interface:
-- `synthesis` (Sagan), `architecture` (Neo), `copy_formatting` (Hemingway), `visual_prompting` (Jonny), `plan_shell` / `plan_filesystem` (Cornelius)
+- `synthesis` (Sagan), `architecture` (Neo), `plan_shell` / `plan_filesystem` (Cornelius)
 - These are not discrete scripts — they're the agent's core LLM capability driven by prompt
 - They appear in the tool registry so the system can track permissions and restrictions uniformly
 
@@ -111,6 +110,7 @@ Tools fall into three categories:
 - `plan_shell` / `plan_filesystem` — Cornelius designs plans, Milo approves execution
 - `discord_post` / `telegram_post` — require standing approval or manual mode
 - `x_post` — manual only, Milo approval per post
+- `email_draft` — Hermes drafts, John sends (Hermes never sends on his own)
 
 **Rules:**
 - Check `config/tools.yaml` (canonical) or `config/tools_manifest.md` (index) before writing new code or scripts
@@ -174,7 +174,7 @@ Each agent prompt defines:
 **Rules:**
 - Hard prompts are fixed instructions — modify only with explicit Milo permission
 - Every agent must have a defined deliverable format
-- The deliverable format must be compatible with Elon's fan-in aggregation
+- The deliverable format must be compatible with Milo's sequential dispatch + compile pattern
 - Task-specific prompts are separate from identity prompts
 
 ---
@@ -192,14 +192,14 @@ Each agent prompt defines:
 
 **Key args in Command Center:**
 - `TIER_CAP` — set by Milo per task, controls maximum model tier
-- `PARALLEL_CAP` — default 6, maximum concurrent agent branches
+- `PARALLEL_CAP` — default 4, maximum concurrent agent branches
 - `RISK_MODE` — balanced by default, can be elevated to accuracy
 - `EXECUTION_MODE` — simulate by default, execute only when explicitly elevated
 - `max_concurrent_local_model_gb: 45` — memory ceiling for parallel local models
-- `exclusive_models` — Cornelius runs solo (51GB footprint)
+- `exclusive_models` — Cornelius runs solo (~48.2GB footprint)
 
 **Rules:**
-- Elon reads args before running any workflow
+- Milo reads args before dispatching any workflow
 - Changing args changes behavior immediately — no code changes needed
 - Args never override governance rules (Milo's approval authority, Sentinel's QA gates)
 - Model fallback chains are defined in args, not in agent prompts
@@ -241,15 +241,15 @@ If an agent can't complete a task with existing tools and workflows:
 - State what's missing
 - State what's needed
 - Do not guess or invent capabilities
-- Route the blocker through Elon to Milo
+- Route the blocker back to Milo
 
 ### 6. Failure handling
 
 Every failure generates a `FAILURE_ENVELOPE` per `docs/Handoff_Protocol.md`:
 - First failure: silent retry with same model
 - Model unavailable: retry with fallback from `config/models.yaml`
-- Second failure: Elon reroutes or marks branch as partial
-- Required branch failure: Milo is notified
+- Second failure: Milo reroutes or marks the step as partial
+- Required branch failure: Milo is notified and decides
 - Three failures in 24h: Cortana surfaces pattern summary
 
 ### 7. Context window management
@@ -271,7 +271,7 @@ Long agent chains accumulate tokens fast.
 - Cortana reads today's daily log and yesterday's log for session continuity
 - Cortana reads `state/Active_Projects.md` for current project state
 - Cortana reads `state/Decision_Log.md` for relevant past decisions
-- Elon reads `config/models.yaml` and `config/routing.yaml` for runtime configuration
+- Milo reads `config/models.yaml` and `config/routing.yaml` for runtime configuration
 
 **During workflow:**
 - Cortana logs events, artifacts, and failures automatically
@@ -319,19 +319,20 @@ Document system-level mistakes here. Script bugs go in tool documentation. Agent
 1. **Always check `config/tools_manifest.md` before writing a new script.** If it exists, use it.
 2. **Verify tool output format before chaining into another agent's handoff.** Format mismatches are silent failures.
 3. **Don't assume APIs support batch operations.** Check first.
-4. **When a workflow fails mid-execution, preserve intermediate outputs before retrying.** Cortana logs, Elon decides retry strategy.
+4. **When a workflow fails mid-execution, preserve intermediate outputs before retrying.** Cortana logs; Milo decides retry strategy.
 5. **Read the full workflow definition before starting a task.** Don't skim.
-6. **Never expose API keys or tokens in chat, logs, or handoff packets.** Set via `~/.zshrc` or `.env`. If a token is exposed, rotate immediately.
+6. **Never expose API keys or tokens in chat, logs, or handoff packets.** Store via `~/.openclaw/secrets.json` (SecretRef). If a token is exposed, rotate immediately.
 7. **Path casing matters.** Username is lowercase `milo`, not `Milo`. Mismatches have caused repeated failures.
 8. **External volume paths are required.** Home directory lives at `/Volumes/BotCentral/Users/milo/`. LaunchAgents must be copied to `/Users/milo/Library/LaunchAgents/` on the system drive.
-9. **Cornelius runs solo.** At 51GB, `qwen3-coder-next:latest` cannot share local memory with other models. When Cornelius is active, Kairo must route to its NIM escalation model.
-10. **Elon never compiles or delivers to John.** He routes and clears only. Milo delivers.
-11. **Pulse detects signals — Pulse does not analyze.** Deep analysis routes to Sagan.
+9. **Cornelius runs solo.** At ~48.2GB, `qwen3-coder-next:latest` cannot share local memory with other models. When Cornelius is active, all other local agents route to cloud.
+10. **Milo is the only path to John.** Specialists never deliver directly — they return structured results to Milo who compiles and delivers.
+11. **Milo dispatches via `sessions_spawn` with `agentId`.** Never spawn anonymous subagents — they have no tool access.
 12. **No automatic shell execution.** Cornelius designs plans. Milo approves execution.
 13. **Run Init_Checklist.md after any crash or fresh start.** Don't accept tasks on an unverified environment.
-14. **Check `config/workflows_manifest.md` before building a custom task graph.** If a workflow or router profile already exists, use it.
+14. **Check `config/routing.yaml` before building a custom dispatch.** If a router profile already exists, use it.
 15. **Anthropic API is not approved for OpenClaw harness use.** Route all agents to approved providers: Ollama Local, Ollama Pro, NIM Direct, ChatGPT Plus (Codex), Perplexity Pro, Z.ai.
-16. **HALT is MILO's exclusively.** Elon surfaces HALT_RECOMMENDATION and freezes graph — never unilaterally stops a workflow.
+16. **HALT is Milo's exclusively.** Any specialist may flag `halt_recommended: true`, but only Milo stops work.
+17. **Milo is male.** Use he/him pronouns in code comments and documentation.
 
 *(Add new guardrails as mistakes happen. Keep this list under 20 items. When Cortana detects 3+ instances of the same failure pattern within 24h, she generates a GUARDRAIL_PROPOSAL for Milo to approve and append here.)*
 

@@ -1,94 +1,76 @@
 defaults:
   simple_answer_owner: Milo
-  orchestration_owner: Elon
+  orchestration_owner: Milo  # Phase 5: Milo absorbed Elon — no separate orchestrator
 
 # Profiles define both the agent set and the execution sequence.
 # Brackets [] within a sequence indicate parallel execution.
 # See Router_Profiles.md for narrative descriptions.
 #
-# Delegation model:
-#   John → Milo (intake, clarity, complexity score) → Elon (orchestration, agent selection)
-#   Elon delivers routine workflow results directly to John.
-#   Milo is the mandatory return path only for HALT, escalations, and policy decisions.
+# Delegation model (Phase 5):
+#   John → Milo (intake, complexity score, dispatch)
+#   Milo orchestrates sequentially, dispatching to specialists via
+#   sessions_spawn with agentId. Multi-step workflows loop back through
+#   Milo between steps so he can compile results and deliver to John.
+#   HALT authority belongs exclusively to Milo.
 
 profiles:
   intelligence:
-    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    agents: [Sagan, Hermes, Cortana]
     sequence:
-      - Pulse                    # scout and score signals
-      - Sagan                    # validate and synthesize
-      - Hemingway                # format readable brief (COPY_PACKAGE)
-      - Elon                     # compile and clear run instance
-      - Zuck                     # package for platform (SOCIAL_PACKAGE) + distribute
+      - Sagan                    # gather signals + synthesize
+      - Hermes                   # package and distribute (Discord, Telegram, email)
       - Cortana                  # log state
-
-  campaign:
-    agents: [Sagan, Hemingway, Jonny, Elon, Zuck, Cortana]
-    sequence:
-      - Sagan                    # research and source material
-      - [Hemingway, Jonny]       # copy (COPY_PACKAGE) + visual in parallel
-      - Elon                     # compile and clear
-      - Zuck                     # package + distribute (SOCIAL_PACKAGE)
-      - Cortana                  # log state
+    notes: "Milo dispatches Sagan, compiles result, then dispatches Hermes for delivery."
 
   engineering:
-    agents: [Neo, Cornelius, ClawCode, Sentinel, Milo, Cortana]
+    agents: [Neo, Cornelius, Sentinel, Cortana]
     sequence:
-      - Neo                      # architecture and tradeoffs (GPT-5.4 Codex)
-      - Cornelius                # execution plan with rollback (GPT-OSS 20B)
-      - ClawCode                 # implementation — routine autonomous coding
-      - Sentinel                 # QA gate (always triggered for infra)
-      - Milo                     # approval gate
+      - Neo                      # architecture and technical design
+      - Cornelius                # execution plan with rollback (runs solo on ~48GB)
+      - Sentinel                 # QA gate
       - Cortana                  # log state
-    notes: "ClawCode executes implementation; Claude Code invoked directly for critical/complex work"
+    notes: "Milo approves any execution after Sentinel clears. Cornelius-only lane: all other local models unload."
 
-  executive:
-    agents: [Elon, Sentinel, Milo, Cortana]
+  comms:
+    agents: [Hermes, Sentinel, Cortana]
     sequence:
-      - Elon                     # build task graph, dispatch parallel specialists
-      - Sentinel                 # QA on aggregated results
-      - Milo                     # final approval
-      - Cortana                  # log state
-    notes: Elon fans out to specialists dynamically based on task graph
+      - Hermes                   # draft Discord/Telegram/email
+      - Sentinel                 # QA on outbound content (conditional)
+      - Cortana                  # log delivery
+    notes: "Simple outbound comms from Milo. Sentinel review triggers only on brand-sensitive content or new channels."
 
-  social_response:
-    agents: [Pulse, Hemingway, Zuck, Cortana]
+  research:
+    agents: [Sagan, Sentinel, Cortana]
     sequence:
-      - Pulse                    # detect or receive signal
-      - Hemingway                # draft response copy (COPY_PACKAGE)
-      - Zuck                     # package + post (SOCIAL_PACKAGE)
-      - Cortana                  # log state
+      - Sagan                    # deep research and synthesis
+      - Sentinel                 # QA on citations and confidence (conditional)
+      - Cortana                  # log findings to 2Brain
+    notes: "Pure research with no external distribution. Output lands in 2Brain/outputs or 2Brain/wiki."
 
-  recurring_publish:
-    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+  governance:
+    agents: [Sentinel, Cortana]
     sequence:
-      - Pulse                    # scan feeds and signals
-      - Sagan                    # synthesize and validate sources
-      - Hemingway                # format for audience (COPY_PACKAGE)
-      - Elon                     # clear run instance
-      - Zuck                     # package + auto-post to approved channels (SOCIAL_PACKAGE)
-      - Cortana                  # log run completion
-    requires:
-      - standing_milo_approval
-      - elon_instance_clearance
-      - sentinel_not_blocking
+      - Sentinel                 # evaluate pending output
+      - Cortana                  # log decision
+    notes: "Quality gate for anything produced outside a standard workflow."
 
 rules:
   # Milo answers directly only for trivial requests (no tool calls, no ambiguity)
   - when: trivial_and_no_tools
     route_to: Milo
-  # All other requests: Milo briefs Elon; Elon selects agents from first principles
+  # Cross-domain or multi-step: Milo orchestrates sequentially
   - when: cross_domain_or_multi_step
-    route_to: Elon
+    route_to: Milo
   - when: research_required
     enforce: Sagan
-  - when: signal_detected
-    start_with: Pulse
+  - when: outbound_comms
+    route_to: Hermes
   - when: system_change
     route_sequence: [Neo, Cornelius]
-  - when: autonomous_coding_task
-    route_to: ClawCode
-  - when: approved_recurring_publish
-    route_profile: recurring_publish
+  - when: heavy_local_coding
+    route_to: Cornelius
+    note: "Cornelius exclusive — unloads all other local models"
   - when: critical_or_complex_coding
     note: "Escalate to Claude Code directly — outside harness"
+  - when: output_quality_check
+    enforce: Sentinel

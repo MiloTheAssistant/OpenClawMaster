@@ -5,6 +5,7 @@ This matrix defines the role, user access, operating bias, routing behavior, and
 
 **Source of truth for model assignments:** `config/models.yaml`
 **Source of truth for agent roles:** `AGENTS.md`
+**Phase:** 5 (streamlined 7-agent roster)
 
 ## Model Bias Definitions
 - **Speed:** low-latency triage and throughput
@@ -12,10 +13,10 @@ This matrix defines the role, user access, operating bias, routing behavior, and
 - **Accuracy:** deeper reasoning for expensive mistakes
 
 ## System Defaults
-- TIER_CAP: set by MILO per task
-- PARALLEL_CAP: 6
-- RISK_MODE: balanced
-- EXECUTION_MODE: simulate
+- `TIER_CAP`: set by Milo per task
+- `PARALLEL_CAP`: 4
+- `RISK_MODE`: balanced
+- `EXECUTION_MODE`: simulate
 - LOCAL/CLOUD strategy: hybrid
 
 ## Approved Providers
@@ -26,7 +27,7 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 ## Hardware Budget
 - 64GB unified memory, ~8GB OS reserved
 - 45GB max concurrent local models
-- Cornelius exclusive: 51GB (all other local models unload)
+- Cornelius exclusive: 48.2GB (all other local models unload)
 - Ollama Pro: 3 concurrent cloud slots
 
 ---
@@ -35,34 +36,25 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 
 ### Command Layer
 
-| Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation Model | Fallback | Reports To |
+| Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation | Fallback | Reports To |
 |---|---|---|---|---|---|---|---|
-| Milo | Yes | Governance, intake, approvals | Balanced | `ollama_cloud/gemma4:31b-cloud` | `nim/nemotron-super-49b-v1.5` | `ollama_local/nemotron-3-nano:4b` | USER |
-| Elon | Yes (status only) | Orchestration, task graphs | Accuracy | `codex/gpt-5.4` | `nim/nemotron-ultra-253b` | `ollama_cloud/nemotron-super:cloud` | Milo & USER |
+| Milo | Yes | Intake, dispatch, orchestration, HALT | Balanced | `ollama_cloud/glm-5.1:cloud` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | USER |
 
-### Governance Layer
+### Core Specialists
 
-| Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation Model | Fallback | Reports To |
+| Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation | Fallback | Reports To |
 |---|---|---|---|---|---|---|---|
-| Sentinel | No | QA, contradictions, risk review | Accuracy | `ollama_local/glm-4.7-flash` | `zai/glm-5` | `ollama_local/gemma4:26b` | Elon & Milo |
-| Cortana | No | State, telemetry, logs | Balanced | `ollama_local/nemotron-3-nano:4b` | `ollama_local/gemma4:26b` | — | Milo & Elon |
-| Themis | No (unless invoked) | Legal intelligence, compliance | Accuracy | `nim/nemotron-ultra-253b` | `codex/gpt-5.4` | `zai/glm-5` | Elon & Milo |
-| Cerberus | No (unless invoked) | Security, threats, incidents | Accuracy | `nim/nemotron-ultra-253b` | `codex/gpt-5.4` | `zai/glm-5` | Elon & Milo |
+| Sagan | No | Deep research, web-grounded synthesis | Accuracy | `perplexity/sonar-reasoning-pro` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | Milo |
+| Neo | No | Engineering, architecture, coding | Accuracy | `nim/qwen/qwen3-coder-480b-a35b-instruct` | `codex/gpt-5.4` | `ollama_cloud/minimax-m2.7:cloud` | Milo |
+| Hermes | No (invokable) | Communications — Discord, Telegram, email | Balanced | `ollama_cloud/glm-5.1:cloud` | `zai/glm-5.1-turbo` | `ollama_local/qwen3.5:4b` | Milo |
+| Sentinel | No | QA gate, output validation, security checks | Accuracy | `ollama_cloud/glm-5.1:cloud` | `zai/glm-5.1-turbo` | `ollama_local/qwen3.5:4b` | Milo |
+| Cortana | No | State, memory, telemetry, artifact tracking | Balanced | `ollama_local/qwen3.5:4b` | `ollama_cloud/glm-5.1:cloud` | — | Milo |
+| Cornelius | No | Infra planning, execution plans, heavy coding | Balanced | `ollama_local/qwen3-coder-next:latest` | `ollama_cloud/minimax-m2.7:cloud` | — | Milo |
 
-### Specialist Layer
+### Retired Agents
 
-| Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation Model | Fallback | Reports To |
-|---|---|---|---|---|---|---|---|
-| Pulse | No | Signal detection, triage | Speed | `ollama_local/gemma4:26b` | `perplexity/sonar-pro` | `nim/nemotron-super-49b-v1.5` | Elon |
-| Sagan | No | Research and synthesis | Accuracy | `perplexity/sonar-reasoning-pro` | `codex/gpt-5.4` | `zai/glm-5` | Elon |
-| Quant | No | Financial metrics | Accuracy | `ollama_local/gemma4:26b` | `codex/o4-mini` | `nim/nemotron-super-49b-v1.5` | Elon |
-| Neo | No | Engineering, architecture | Accuracy | `nim/qwen3-coder-480b` | `codex/gpt-5.4` | `ollama_cloud/qwen3-coder-next` | Elon |
-| Cornelius | No | Infra plans, rollback paths | Balanced | `ollama_local/qwen3-coder-next:latest` | `codex/gpt-5.4` | — | Elon & Milo |
-| Hemingway | No | Copy and messaging | Balanced | `ollama_local/gemma4:26b` | `zai/glm-5` | `nim/nemotron-super-49b-v1.5` | Elon |
-| Jonny | No | Visual strategy, prompts | Balanced | `zai/glm-5` | `ollama_local/gemma4:26b` | — | Elon |
-| Kairo | No (unless invoked) | Frontend, Next.js, Tailwind | Accuracy | `ollama_local/qwen3.5:35b-a3b-codingnvfp4` | `nim/qwen3-coder-480b` | `ollama_cloud/qwen3-coder-next` | Elon |
-| Zuck | No | Social packaging, publishing | Balanced | `ollama_local/gemma4:26b` | `nim/nemotron-super-49b-v1.5` | — | Elon |
-| Hermes | No (unless invoked) | Email triage, drafting | Balanced | `ollama_local/gemma4:26b` | `zai/glm-5` | `nim/nemotron-super-49b-v1.5` | Elon |
+Elon, Pulse, Quant, Hemingway, Jonny, Kairo, Zuck, Themis, Cerberus, Sentinel-RT.
+Available for reactivation when proven workflows need them — not in current runtime.
 
 ---
 
@@ -70,19 +62,17 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 
 | Slot | Model | Serves |
 |---|---|---|
-| 1 | `gemma4:31b-cloud` | Milo (primary), general overflow |
-| 2 | `qwen3-coder-next:cloud` | Kairo (when Cornelius holds local), Neo (fallback) |
-| 3 | `minimax-m2.7:cloud` | ClawCode coding agent, overflow |
+| 1 | `glm-5.1:cloud` | Milo (primary), Hermes, Sentinel |
+| 2 | `minimax-m2.7:cloud` | Neo (fallback), Cornelius (escalation) |
+| 3 | reserved | overflow / research bursts |
 
-## Local Model Roster (~42GB concurrent)
+## Local Model Roster
 
 | Model | Size | Serves |
 |---|---|---|
-| `nemotron-3-nano:4b` | ~2.5GB | Milo (fallback), Cortana |
-| `gemma4:26b` | ~16GB | Pulse, Quant, Hemingway, Zuck, Hermes |
-| `glm-4.7-flash` | ~5GB | Sentinel |
-| `qwen3.5:35b-a3b-codingnvfp4` | ~18GB | Kairo |
-| `nomic-embed-text` | ~0.3GB | Embedding (2Brain) |
+| `qwen3.5:4b` | ~3.2GB | Cortana (primary), Hermes/Sentinel (fallback) |
+| `qwen3-coder-next:latest` | ~48.2GB | Cornelius (exclusive — unloads everything else) |
+| `nomic-embed-text` | ~0.3GB | Embedding (2Brain memory-core) |
 
 ---
 
@@ -90,36 +80,37 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 
 | Trigger | Action |
 |---|---|
-| Complexity >= 3 | Milo escalates to NIM nemotron-super-49b |
-| Long context window | Milo escalates to NIM |
-| High-stakes output | Sentinel escalates to zai/glm-5 |
-| Conflicting outputs | Sentinel escalates to zai/glm-5 |
-| Impact score >= 8 | Pulse routes to Sagan and notifies Elon |
-| Elevated risk mode | Cornelius escalates bias to accuracy |
-| Cornelius active locally | Kairo routes to NIM qwen3-coder-480b |
+| Complexity >= 3 | Milo escalates to `codex/gpt-5.4` |
+| Long context window | Milo escalates to `codex/gpt-5.4` |
+| High-stakes output | Sentinel escalates to `zai/glm-5.1-turbo` |
+| Conflicting outputs | Sentinel escalates to `zai/glm-5.1-turbo` |
+| Research confidence below threshold | Sagan escalates to `codex/gpt-5.4` |
+| Cornelius active locally | All other local agents route to cloud |
+| Primary provider 5xx | Gateway falls through to escalation → fallback chain |
 
 ---
 
 ## Routing Rules
-- Simple and fast → MILO answers directly
-- Cross-domain or multi-step → MILO briefs ELON
-- Research required → converges through SAGAN
-- Signal detected → starts at PULSE, escalates to SAGAN if material
-- System change → NEO architecture, then CORNELIUS execution plan
-- Outbound social → ZUCK only, through approved channels
-- Legal exposure → THEMIS gate required
-- Infra change or deployment → CERBERUS gate required
 
-## Social Distribution Policy
+- **Trivial, no tools** → Milo answers directly
+- **Cross-domain or multi-step** → Milo dispatches sequentially (Sagan → Hermes → ...)
+- **Research required** → converges through Sagan
+- **Outbound comms** → Hermes (Discord, Telegram, email)
+- **System change** → Neo architecture, then Cornelius execution plan, Sentinel gate
+- **Heavy local coding** → Cornelius (exclusive, all other local models unload)
+- **Critical/complex coding** → escalate to Claude Code directly (outside harness)
+- **Output quality check** → Sentinel
+- **State change or artifact** → Cortana
+
+## Distribution Policy
 
 ### Manual Mode
-Required for: ad hoc public posts, brand-sensitive posts, X posts, promotional launches.
+Required for: ad-hoc public posts, brand-sensitive posts, X posts, promotional launches.
 
 ### Standing-Approved Recurring Mode
-- MILO approves the workflow lane once
-- ELON clears each run instance
-- ZUCK posts automatically to allowed channels
-- SENTINEL review is conditional
+- Milo approves the workflow lane once
+- Hermes posts automatically to allowed channels
+- Sentinel review is conditional
 
 ### Emergency Halt
-Any MILO halt or SENTINEL rejection suspends publishing immediately.
+Any Milo halt or Sentinel rejection suspends publishing immediately.

@@ -1,45 +1,41 @@
 # Task_Lifecycle.md
 
-## Canonical Stages
+## Canonical Stages (Phase 5)
 1. Intake
 2. Triage
-3. Routing
-4. Fan-out
-5. Specialist Work
-6. Fan-in
-7. QA
-8. Approval
-9. Delivery
-10. State Update
+3. Dispatch
+4. Specialist Work
+5. Compile
+6. QA
+7. Approval
+8. Delivery
+9. State Update
 
 ## Definitions
 
 ### Intake
-MILO identifies the actual goal and missing critical context.
+Milo identifies the actual goal and missing critical context.
 
 ### Triage
-MILO classifies complexity, risk, and whether the task is direct-answer or orchestration-worthy.
+Milo classifies complexity, risk, and whether the task is direct-answer or dispatch-worthy.
 
-### Routing
-MILO selects a Router Profile or briefs ELON for custom task-graph construction.
-
-### Fan-out
-ELON dispatches independent tasks in parallel where allowed.
+### Dispatch
+Milo selects a Router Profile from `config/routing.yaml` (or builds a custom sequence). He dispatches each step to a named specialist via `sessions_spawn` with `agentId`. Multi-step tasks loop back through Milo between steps.
 
 ### Specialist Work
-Agents return structured envelopes only.
+Named agents (Sagan, Neo, Hermes, Sentinel, Cortana, Cornelius) return structured envelopes — no side effects, no direct user messaging.
 
-### Fan-in
-ELON aggregates results and resolves dependencies.
+### Compile
+Milo aggregates each specialist's output and decides the next step: another dispatch, QA, delivery, or halt.
 
 ### QA
-SENTINEL reviews when required by policy or anomaly triggers.
+Sentinel reviews when required by policy or anomaly triggers (brand-sensitive content, source conflict, confidence below threshold, new channel).
 
 ### Approval
-MILO approves high-risk actions and standing workflow policies. ELON clears instance-level execution packets for approved lanes.
+Milo approves high-risk actions (infra changes, new channels) and standing workflow policies. Recurring workflows with `standing_approval_granted: true` in `config/workflows.yaml` run without per-instance approval.
 
 ### Delivery
-MILO or ELON communicates with the USER. ZUCK handles approved external social distribution.
+Milo communicates with John. Hermes handles outbound comms (Discord, Telegram, email drafts — John sends email).
 
 ### State Update
-CORTANA records state, artifacts, failures, and completion notes under policy.
+Cortana records state, artifacts, failures, and completion notes under policy.

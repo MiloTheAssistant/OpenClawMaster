@@ -1,6 +1,10 @@
 # Command Center — Parallelism Configuration
 # Runtime constraints for concurrent agent execution.
 # Referenced by: AGENTS.md, GotchaFramework.md, docs/Parallel_Execution_Rules.md
+#
+# Phase 5 (7-agent roster): Milo orchestrates sequentially by default.
+# Parallelism only matters inside Cornelius-exclusive windows and when
+# Milo explicitly fans out to independent specialists.
 
 hardware:
   platform: Mac Mini M4 Pro
@@ -8,32 +12,29 @@ hardware:
   os_reserved_gb: 8
 
 limits:
-  parallel_cap: 6
+  parallel_cap: 4                      # reduced from 6 — fewer agents, tighter coordination
   max_concurrent_local_model_gb: 45
 
 exclusive_models:
   - agent: Cornelius
     model: ollama_local/qwen3-coder-next:latest
-    footprint_gb: 51
-    rule: "No concurrent local models when active. Route others to cloud."
+    footprint_gb: 48.2
+    rule: "No concurrent local models when active. Route other work to cloud."
 
 parallel_safe_groups:
-  creative_pipeline: [Pulse, Hemingway, Jonny]
-  engineering_state: [Neo, Cortana]
-  research_pipeline: [Cortana, Pulse, Sagan]
-  distribution: [Hemingway, Jonny, Zuck]
-  comms: [Hermes]
+  # Always safe — stateless reads or cloud-only
+  state_and_comms: [Cortana, Hermes]
+
+  # Research + QA can run in parallel with comms (different resources)
+  research_and_gate: [Sagan, Sentinel]
 
 always_parallel_safe:
-  - Cortana
+  - Cortana      # stateless reads, structured writes
 
 sequential_dependencies:
-  - [Pulse, Sagan]
-  - [Neo, Cornelius]
-  - [Elon, Sentinel]
-  - [Sentinel, Zuck]
-  - [Cerberus, execution]
-  - [Themis, contract]
+  - [Neo, Cornelius]                   # architecture before execution plan
+  - [Sentinel, outbound_publish]       # QA clears before any external post
+  - [Sagan, Hermes]                    # research complete before distribution
 
 timeouts:
   tolerance: moderate

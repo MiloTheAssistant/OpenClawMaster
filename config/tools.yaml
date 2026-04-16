@@ -19,12 +19,13 @@ tool_registry:
     function: milo.routing_controls
     permissions: [read, write_policy]
 
-  orchestration:
+  sessions_spawn:
     type: internal
-    description: Build task graphs, fan-out/fan-in, clear run instances
-    implementation: openclaw_function
-    function: elon.orchestration
-    permissions: [read, dispatch]
+    description: Dispatch to a named specialist (sagan, neo, hermes, sentinel, cortana, cornelius) via agentId
+    implementation: openclaw_gateway
+    function: gateway.sessions_spawn
+    permissions: [dispatch]
+    notes: "Milo's primary dispatch mechanism. Never spawn without agentId — anonymous subagents lack tool access."
 
   state_log:
     type: internal
@@ -56,18 +57,11 @@ tool_registry:
     implementation: "@ollama/openclaw-web-search"
     permissions: [read]
 
-  feeds:
-    type: openclaw_plugin
-    description: Monitor RSS/API feeds for signal detection
-    implementation: "@ollama/openclaw-web-search"
-    notes: Uses web_read under the hood for feed polling
-    permissions: [read]
-
   docs_read:
     type: openclaw_function
-    description: Read local documents, PDFs, and knowledge base files
+    description: Read local documents, PDFs, and 2Brain wiki/briefings
     implementation: filesystem_read
-    base_path: /Volumes/BotCentral/Users/milo/Documents/
+    base_path: /Volumes/BotCentral/Users/milo/repos/2Brain/
     permissions: [read]
 
   synthesis:
@@ -82,7 +76,7 @@ tool_registry:
     type: openclaw_function
     description: Read and analyze code repositories and files
     implementation: filesystem_read
-    base_path: /Volumes/BotCentral/Users/milo/
+    base_path: /Volumes/BotCentral/Users/milo/repos/
     permissions: [read]
 
   architecture:
@@ -112,22 +106,18 @@ tool_registry:
       - no_direct_execution
       - approval_required_from: Milo
 
-  # --- Content Tools ---
-  copy_formatting:
-    type: internal
-    description: Format copy variants with audience/tone/CTA metadata
-    implementation: agent_capability
-    notes: Hemingway's core LLM capability driven by prompt
-    permissions: [read]
+  code_execute:
+    type: agent_capability
+    description: "Cornelius workspace coding — write scripts, modify files, run tests"
+    implementation: cornelius_workspace
+    permissions: [read, write]
+    restrictions:
+      - "MILO approval required for filesystem changes outside Cornelius workspace"
+      - "Never modify OpenClawMaster files directly"
+      - "Never execute shell commands without plan approval"
+    workspace: ~/.openclaw/workspace-cornelius/
 
-  visual_prompting:
-    type: internal
-    description: Generate visual direction briefs and image generation prompts
-    implementation: agent_capability
-    notes: Jonny's core LLM capability driven by prompt
-    permissions: [read]
-
-  # --- Distribution Tools ---
+  # --- Comms & Distribution Tools (Hermes owns all outbound) ---
   discord_post:
     type: api
     description: Post to Discord channels via webhook
@@ -140,7 +130,7 @@ tool_registry:
     permissions: [write]
     restrictions:
       - requires_standing_approval_or_manual_mode
-      - zuck_only
+      - hermes_only
 
   telegram_post:
     type: api
@@ -151,20 +141,28 @@ tool_registry:
     permissions: [write]
     restrictions:
       - requires_standing_approval_or_manual_mode
-      - zuck_only
+      - hermes_only
+
+  email_draft:
+    type: api
+    description: Draft email via Gmail MCP (never sends directly — John sends)
+    implementation: gmail_mcp
+    config:
+      mcp_config_dir: /Volumes/BotCentral/Users/milo/.gmail-mcp-milo
+    permissions: [write]
+    restrictions:
+      - hermes_only
+      - john_sends_never_hermes
 
   x_post:
     type: api
     description: Post to X.com (manual only until API integration complete)
     implementation: x_api
     status: pending  # X.com Developer API setup in progress
-    config:
-      api_key_env: X_API_KEY
-      api_secret_env: X_API_SECRET
     permissions: [write]
     restrictions:
       - manual_only
-      - zuck_only
+      - hermes_only
       - milo_approval_per_post
 
   # --- 2Brain Tools ---
@@ -187,20 +185,19 @@ tool_registry:
 
   cost_log:
     type: internal
-    description: "Log API cost to brain.sqlite cost_tracker table"
+    description: "Log API cost to 2Brain/data/brain.sqlite cost_tracker table"
     implementation: openclaw_function
     function: cortana.cost_log
     permissions: [write]
 
-  dashboard_deploy:
+  # --- Mission Control integration ---
+  mc_push:
     type: script
-    description: "Deploy Command Center Dashboard to Vercel"
-    implementation: vercel_deploy
-    script_path: ~/repos/ClawCode/dashboard/
+    description: "Push tasks, comments, or approvals into Mission Control via REST API"
+    implementation: bash
+    script_path: ~/repos/OpenClawMaster/tools/scripts/mc-push.sh
     permissions: [write]
-    restrictions:
-      - zuck_only
-      - milo_approval_required
+    notes: "Used by cron jobs (security audit, sync-decisions) and the ingest-source skill"
 
   # --- QA Tools ---
   read_only_review:
@@ -211,42 +208,18 @@ tool_registry:
     permissions: [read]
     notes: Sentinel can read any handoff packet or artifact but cannot modify
 
-  # --- Coding Agent Tool ---
-  code_execute:
-    type: agent_capability
-    description: "Execute coding tasks — write scripts, modify files, run tests"
-    implementation: clawcode_coding_agent
-    model_primary: ollama_cloud/minimax-m2.7
-    model_escalation: codex/gpt-5.3-codex-spark
-    model_local: ollama_local/gpt-oss:20b
-    permissions: [read, write]
-    restrictions:
-      - "MILO approval required for filesystem changes outside ClawCode/coding-agent/workspace/"
-      - "Never modify OpenClawMaster files directly"
-      - "Never execute shell commands without plan approval"
-      - "Escalate to Codex-Spark for tasks estimated > 5 minutes"
-    workspace: ~/repos/ClawCode/coding-agent/workspace/
-
 agents:
   Milo:
-    tools: [read_state, routing_controls]
-  Elon:
-    tools: [read_state, orchestration]
-  Sentinel:
-    tools: [read_only_review]
-  Cortana:
-    tools: [state_log, artifact_registry]
-  Pulse:
-    tools: [feeds, web_read]
+    tools: [read_state, routing_controls, sessions_spawn]
   Sagan:
-    tools: [web_read, web_fetch, docs_read, synthesis]
+    tools: [web_read, web_fetch, docs_read, synthesis, twobrain_read]
   Neo:
     tools: [code_read, architecture]
   Cornelius:
-    tools: [plan_shell, plan_filesystem]
-  Hemingway:
-    tools: [copy_formatting]
-  Jonny:
-    tools: [visual_prompting]
-  Zuck:
-    tools: [discord_post, telegram_post, x_post]
+    tools: [plan_shell, plan_filesystem, code_execute]
+  Hermes:
+    tools: [discord_post, telegram_post, email_draft, x_post]
+  Sentinel:
+    tools: [read_only_review]
+  Cortana:
+    tools: [state_log, artifact_registry, twobrain_read, twobrain_write, cost_log, mc_push]

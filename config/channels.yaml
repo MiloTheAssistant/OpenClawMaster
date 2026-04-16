@@ -13,7 +13,7 @@ channels:
           dfb:
             name: "#dfb"
             approved_workflows: [Daily_Financial_Briefing]
-            approved_agents: [Zuck]
+            approved_agents: [Hermes]
 
   telegram:
     enabled: true
@@ -30,7 +30,7 @@ channels:
     enabled: false  # API pending — manual only per DEC-004
     posting_mode: manual_only
     approval_required: per_post
-    approved_agents: [Zuck]
+    approved_agents: [Hermes]  # Phase 5: Hermes absorbed Zuck's social distribution role
 
   email:
     enabled: true

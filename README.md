@@ -2,8 +2,22 @@
 
 Source of truth for the OpenClaw multi-agent environment. Pull this repo and OpenClaw is fully wired.
 
-**Version:** OpenClaw 2026.3.24+
-**Agents:** 16 (Milo, Elon, Cortana, Sentinel, Themis, Cerberus, Pulse, Sagan, Quant, Neo, Cornelius, Hemingway, Jonny, Kairo, Zuck, Hermes)
+**Version:** OpenClaw 2026.4.12+
+**Phase:** 5 — streamlined 7-agent roster
+**Agents:** 7 active (Milo, Sagan, Neo, Hermes, Sentinel, Cortana, Cornelius)
+**Retired:** Elon, Pulse, Quant, Hemingway, Jonny, Kairo, Zuck, Themis, Cerberus, Sentinel-RT — available for reactivation when proven workflows need them
+
+---
+
+## Operational Dashboards
+
+| Dashboard | URL | Purpose |
+|---|---|---|
+| **Mission Control** | `http://localhost:3100` | Task boards, approvals, agent lifecycle |
+| **OpenClaw Control UI** | `openclaw dashboard` → `http://localhost:18789` | Native agent/session/skill/cron monitoring |
+| **2Brain Viewer** | `http://localhost:3200/wiki` | Read-only wiki + briefings reader (mobile-friendly) |
+
+The legacy custom Command Center dashboard has been retired. See `ClawCode/dashboard.retired/README.md`.
 
 ---
 
@@ -12,9 +26,6 @@ Source of truth for the OpenClaw multi-agent environment. Pull this repo and Ope
 | Branch | Purpose |
 |--------|---------|
 | `main` | Daily working branch — agent tuning, goal edits, script fixes |
-| `stable` | Locked config — only updated via formal Gotcha/RedTeam session + PR |
-
-Tag stable releases: `v2026.3.27`, etc.
 
 ---
 
@@ -22,15 +33,16 @@ Tag stable releases: `v2026.3.27`, etc.
 
 ```
 OpenClawMaster/
-├── openclaw.json          Main config (no secrets — uses ${ENV_VAR} placeholders)
-├── .env.example           Template for ~/.openclaw/.env
-├── agents/                Agent persona .md files (16 agents)
-├── goals/                 Workflow definitions (DFB chain, manifest)
-├── scripts/               Utility scripts (heartbeat, key-check, market-data, watchdog)
-├── launchd/               macOS daemon templates (gateway + watchdog only)
-├── docs/                  Architecture docs (handoff protocol, QA gates, state schema)
-├── config/                YAML configs (models, routing, channels, parallelism, tools)
-└── state/                 Live state (active projects, decision log, artifacts, memory)
+├── openclaw.json          Main config reference (live runtime at ~/.openclaw/openclaw.json)
+├── .env.example           Template for secrets (actual secrets at ~/.openclaw/secrets.json)
+├── agents/                Agent persona .md files (7 active agents)
+├── goals/                 Workflow definitions and task prompts
+├── scripts/               Utility scripts
+├── tools/scripts/         Operational helpers (mc-push, sync-decisions, gateway-restart, sync-agents-models, model-health-check)
+├── docs/                  Architecture docs (routing matrix, profiles, handoff, parallelism, lifecycle)
+├── config/                Runtime configs (models, routing, workflows, tools, channels, parallelism, mission-control)
+├── state/                 Live state (active projects, decision log, artifacts, memory)
+└── .claude/skills/        Claude Code skills (dispatch, ingest-source, add-agent, deploy-gateway)
 ```
 
 ---
@@ -40,30 +52,33 @@ OpenClawMaster/
 ```bash
 # 1. Clone this repo
 git clone https://github.com/MiloTheAssistant/OpenClawMaster.git \
-  /Volumes/MiloCache/MiloLocalBak/OpenClawMaster
+  /Volumes/BotCentral/Users/milo/repos/OpenClawMaster
 
 # 2. Install OpenClaw (clean)
 curl -fsSL https://openclaw.ai/install.sh | bash
 
-# 3. Copy config from repo
-cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/openclaw.json ~/.openclaw/openclaw.json
+# 3. Copy config reference from repo
+cp /Volumes/BotCentral/Users/milo/repos/OpenClawMaster/openclaw.json ~/.openclaw/openclaw.json
 
-# 4. Set up .env (copy from backup — never from repo)
-cp /Volumes/MiloCache/MiloLocalBak/snapshots/YYYY-MM-DD/.env ~/.openclaw/.env
-# Add missing keys: PERPLEXITY_API_KEY, DISCORD_BOT_TOKEN, FIRECRAWL_API_KEY
+# 4. Set up secrets.json (never in git)
+cp /Volumes/MiloCache/MiloLocalBak/snapshots/YYYY-MM-DD/secrets.json ~/.openclaw/secrets.json
+chmod 600 ~/.openclaw/secrets.json
 
 # 5. Copy agent personas
-cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/agents/*.md ~/.agents/
+cp /Volumes/BotCentral/Users/milo/repos/OpenClawMaster/agents/*.md ~/.agents/
 
-# 6. Copy scripts + goals
-cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/scripts/* ~/.openclaw/workspace/scripts/
-cp /Volumes/MiloCache/MiloLocalBak/OpenClawMaster/goals/* ~/.openclaw/workspace/goals/
-
-# 7. Install macOS Companion App (replaces Command Center)
+# 6. Install macOS Companion App (optional)
 # Open OpenClaw-{version}.dmg from Downloads → drag to /Applications
 
-# 8. Re-auth OpenAI Codex (for Elon / gpt-5.4)
+# 7. Re-auth OpenAI Codex
 openclaw auth openai-codex
+
+# 8. Start Mission Control (requires Docker Desktop)
+cd /Volumes/BotCentral/Users/milo/repos/openclaw-mission-control
+docker compose --env-file .env up -d --build
+
+# 9. Start 2Brain viewer (launchd)
+launchctl load -F ~/Library/LaunchAgents/com.2brain-viewer.plist
 ```
 
 ---
@@ -72,12 +87,12 @@ openclaw auth openai-codex
 
 | Provider | Agent(s) | Key |
 |----------|----------|-----|
-| Ollama (local) | Cortana, Pulse, Hemingway, Sentinel, Quant, Kairo, Zuck, Hermes, Cornelius | (no key needed) |
-| NVIDIA NIM | Milo, Elon, Neo, Themis, Cerberus | `NVIDIA_NIM_API_KEY` |
+| Ollama Local | Cortana, Cornelius | (no key needed) |
+| Ollama Pro (cloud) | Milo, Hermes, Sentinel | `OLLAMA_API_KEY` |
+| NVIDIA NIM | Neo | `NVIDIA_NIM_API_KEY` |
 | Perplexity | Sagan | `PERPLEXITY_API_KEY` |
-| Z.ai | Jonny, Sentinel (escalation) | `ZAI_API_KEY` |
-| OpenAI Codex | Elon (escalation), Sagan (escalation) | OAuth |
-| Ollama Pro (cloud) | Milo (fallback) | `OLLAMA_API_KEY` |
+| Z.ai | Milo/Hermes/Sentinel (fallback) | `ZAI_API_KEY` |
+| OpenAI Codex | Milo/Sagan/Neo (escalation) | OAuth |
 
 **Blocked:** Anthropic API — policy conflict with OpenClaw harness.
 
@@ -87,29 +102,40 @@ openclaw auth openai-codex
 
 | Workflow | Schedule | Chain |
 |---------|----------|-------|
-| Daily Financial Briefing | 8:45 AM CT, weekdays | Cortana → Pulse+Sagan → Hemingway → Sentinel → Zuck |
-| Market Signal Scanner | 1:30–5:30 PM CT, weekdays | Pulse → Sagan (if impact ≥ 8) |
-| Gateway Key Health | Every 30 min | check-gateway-keys.py → Telegram silent |
-| Heartbeat | Hourly | heartbeat.sh → Telegram announce |
+| Daily Financial Briefing | 7:00 AM CT, weekdays | Milo → Sagan → Hermes → Sentinel → Cortana |
+| Market Signal Scanner | every 2h, market hours | Milo → Sagan → Cortana |
+| Security Audit | midnight daily | Sentinel → Cortana → (pushes approvals to MC) |
+| Memory Dreaming | 3 AM daily | memory-core plugin (Cortana) |
+| Decision Log Sync | every 5 min | launchd → `sync-decisions.sh` → MC Decisions board |
 
 ---
 
-## Skills Enabled
+## Skills & Tools
 
-| Skill | Purpose |
+| Script | Purpose |
 |-------|---------|
-| GitHub CLI | Repo management, PR creation |
-| Git CLI | Version control |
-| Firecrawl | Web research (Sagan, Neo — DFB chain) |
-| Discord | DFB delivery (Zuck → #dfb channel) |
-| Telegram | Heartbeat, key health alerts, Milo DMs |
+| `tools/scripts/mc-push.sh` | Push tasks, comments, approvals to Mission Control |
+| `tools/scripts/sync-decisions.sh` | Sync Decision_Log.md → MC Decisions board |
+| `tools/scripts/gateway-restart.sh` | Clean gateway unload/load with health check |
+| `tools/scripts/sync-agents-models.sh` | Verify AGENTS.md ↔ models.yaml ↔ agents/*.md are in sync |
+| `tools/scripts/model-health-check.sh` | Inventory local models + gateway status + cloud ping |
 
-**QMD:** Present in skills dir but NOT activated. Enable when ready.
+Claude Code skills under `.claude/skills/`: `ingest-source`, `dispatch`, `add-agent`, `deploy-gateway`.
 
 ---
 
 ## Secrets
 
-- `.env` lives at `~/.openclaw/.env` — **never committed**
+- Secrets live at `~/.openclaw/secrets.json` — **never committed**, permissions `600`
+- Config YAML uses OpenClaw SecretRef format (`source: file`, `id: /KEY_NAME`) to reference them
 - Backup kept at `/Volumes/MiloCache/MiloLocalBak/snapshots/`
-- See `.env.example` for all required keys
+
+---
+
+## References
+
+- `AGENTS.md` — agent roster, authority chain, delegation flow
+- `GotchaFramework.md` — 6-layer operating framework (Goals, Orchestration, Tools, Context, Hard prompts, Args)
+- `CLAUDE.md` — session guidance for AI agents working in this repo
+- `docs/Agent_Model_Routing_Matrix.md` — model assignments + escalation rules
+- `docs/Router_Profiles.md` — reusable dispatch formations

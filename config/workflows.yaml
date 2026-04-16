@@ -1,16 +1,20 @@
+# Command Center — Workflow Definitions (Phase 5)
+# Milo orchestrates all workflows. Named specialists handle domain steps.
+# Referenced by: GotchaFramework.md, AGENTS.md, docs/Router_Profiles.md
+
 workflows:
   Daily_Financial_Briefing:
-    type: recurring_publish
+    type: intelligence
     schedule: cron
-    cron_expression: "0 7 * * 1-5"  # 7:00 AM CT, weekdays
+    cron_expression: "0 7 * * 1-5"     # 7:00 AM CT, weekdays
     standing_approval_required: true
-    standing_approval_granted: true  # DEC-003
-    instance_clearance_required: Elon
+    standing_approval_granted: true    # DEC-003
+    instance_clearance_required: Milo
     channels: [Discord, Telegram]
     discord_target:
       server: "Milo's World"
       channel: "#dfb"
-    path: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    path: [Sagan, Hermes, Sentinel, Cortana]
     sentinel_review: conditional
     sentinel_triggers:
       - source_conflict
@@ -20,42 +24,37 @@ workflows:
     task_prompt: /Volumes/BotCentral/Users/milo/Documents/agents/tasks/daily_financial_briefing.md
 
   Market_Signal_Scanner:
-    type: intelligence
+    type: research
     schedule: interval
-    interval_minutes: 120  # every 2 hours during market hours
-    market_hours_only: true  # 8:30 AM - 4:00 PM CT, weekdays
-    standing_approval_required: false  # internal-only, no publishing
-    instance_clearance_required: Elon
-    channels: []  # internal only — feeds into DFB and escalation
-    path: [Pulse, Sagan, Elon, Cortana]
+    interval_minutes: 120               # every 2 hours during market hours
+    market_hours_only: true             # 8:30 AM – 4:00 PM CT, weekdays
+    standing_approval_required: false   # internal-only, no publishing
+    channels: []                        # feeds into DFB; no external distribution
+    path: [Sagan, Cortana]
     sentinel_review: conditional
     sentinel_triggers:
       - impact_score_gte_8
       - conflicting_signals
     escalation_rule:
-      impact_score_gte_8: route_to_sagan_and_notify_elon
       impact_score_gte_9: notify_milo
-    output_destination: cortana_state  # logged as pending_items for DFB consumption
-    failure_action: log_and_continue  # non-critical, next interval retries
+    output_destination: cortana_state   # logged as pending_items for DFB consumption
+    failure_action: log_and_continue    # non-critical, next interval retries
 
-  Content_Repurposing_Engine:
-    type: campaign
-    schedule: on_demand  # triggered manually or by Elon after content is created
-    standing_approval_required: true
-    standing_approval_granted: false  # pending Milo approval
-    instance_clearance_required: Elon
-    channels: [Discord, Telegram]
-    x_channel: manual_only  # per DEC-004
-    path: [Sagan, Hemingway, Jonny, Elon, Zuck, Cortana]
-    parallel_lanes:
-      - [Hemingway, Jonny]  # copy and visual run in parallel after Sagan
-    sentinel_review: conditional
-    sentinel_triggers:
-      - brand_sensitive_content
-      - new_channel_addition
-      - confidence_below_threshold
-    input_sources:
-      - DFB_output
-      - manual_content_brief
-      - research_briefs
-    failure_action: log_and_notify_elon
+  Security_Audit:
+    type: governance
+    schedule: cron
+    cron_expression: "0 0 * * *"        # midnight daily
+    standing_approval_required: false
+    path: [Sentinel, Cortana]
+    attention_action: push_approval_task_to_mission_control
+    channels: [Telegram]                # summary ping to Milo DM
+    failure_action: log_and_notify_milo
+
+  Memory_Dreaming:
+    type: governance
+    schedule: cron
+    cron_expression: "0 3 * * *"        # 3 AM daily (memory-core plugin owns this)
+    standing_approval_required: false
+    path: [Cortana]
+    managed_by: memory-core-plugin
+    failure_action: log_and_retry_next_cycle

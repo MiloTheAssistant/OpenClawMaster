@@ -13,4 +13,4 @@ Perform real actions only when:
 - policy gates are satisfied
 
 ## Standing Policy Exception
-Standing-approved recurring publishing workflows may execute distribution actions in simulate-default systems because the workflow itself has already been authorized by MILO and the run is cleared by ELON.
+Standing-approved recurring publishing workflows may execute distribution actions in simulate-default systems because the workflow itself has already been authorized by MILO. Milo clears each instance implicitly when he dispatches to Hermes or when the cron-triggered workflow has a `standing_approval_granted: true` flag in `config/workflows.yaml`.
