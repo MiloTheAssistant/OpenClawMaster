@@ -1,0 +1,42 @@
+# Secrets — NEVER commit
+.env
+*.env.local
+launchd/*.plist
+launchd/*.plist.template
+
+# OpenClaw runtime (managed by openclaw onboard, not version controlled)
+openclaw.json.bak*
+openclaw.json.backup
+sync.log
+exec-approvals.json
+update-check.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Backups
+*.bak
+*.bak.*
+
+# Memory & state (live data — preserved in MiloLocalBak/snapshots, not git)
+memory/
+smart-memory/
+state/sessions/
+
+# Claude Code temporary worktrees — created by Plan/Explore agents, ephemeral
+.claude/worktrees/

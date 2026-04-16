@@ -1,0 +1,46 @@
+# Command Center — Parallelism Configuration
+# Runtime constraints for concurrent agent execution.
+# Referenced by: AGENTS.md, GotchaFramework.md, docs/Parallel_Execution_Rules.md
+
+hardware:
+  platform: Mac Mini M4 Pro
+  total_memory_gb: 64
+  os_reserved_gb: 8
+
+limits:
+  parallel_cap: 6
+  max_concurrent_local_model_gb: 45
+
+exclusive_models:
+  - agent: Cornelius
+    model: ollama_local/qwen3-coder-next:latest
+    footprint_gb: 51
+    rule: "No concurrent local models when active. Route others to cloud."
+
+parallel_safe_groups:
+  creative_pipeline: [Pulse, Hemingway, Jonny]
+  engineering_state: [Neo, Cortana]
+  research_pipeline: [Cortana, Pulse, Sagan]
+  distribution: [Hemingway, Jonny, Zuck]
+  comms: [Hermes]
+
+always_parallel_safe:
+  - Cortana
+
+sequential_dependencies:
+  - [Pulse, Sagan]
+  - [Neo, Cornelius]
+  - [Elon, Sentinel]
+  - [Sentinel, Zuck]
+  - [Cerberus, execution]
+  - [Themis, contract]
+
+timeouts:
+  tolerance: moderate
+  retry_on_transient: true
+  fallback_chain: models.yaml
+
+cancellation:
+  milo_halt: stops_all_downstream
+  sentinel_rejection: blocks_delivery_and_publishing
+  workflow_policy_mismatch: stops_publishing_lanes

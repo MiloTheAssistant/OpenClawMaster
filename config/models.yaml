@@ -1,0 +1,95 @@
+# Command Center — Model Configuration (Phase 5: Streamlined)
+# 7 active agents, dual-cloud resilience, simplified matrix
+#
+# Approved providers: Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pro, Z.ai
+# Anthropic API is NOT approved for OpenClaw harness use
+
+defaults:
+  strategy: hybrid
+  execution_mode: simulate
+  risk_mode: balanced
+  parallel_cap: 4  # reduced from 6 — fewer agents, tighter coordination
+
+# Hardware budget: 64GB unified, 45GB concurrent local max
+# Cornelius exclusive: 48.2GB (all other local models unload)
+
+providers:
+  ollama_local:
+    base_url: http://localhost:11434
+    priority: 0  # always available, zero cost
+  ollama_cloud:
+    base_url: https://api.ollama.com/v1
+    api_key_env: OLLAMA_API_KEY
+    priority: 1  # Ollama Pro — included in subscription
+  nim:
+    base_url: https://integrate.api.nvidia.com/v1
+    api_key_env: NVIDIA_NIM_API_KEY
+    priority: 1  # generous free tier
+  perplexity:
+    base_url: https://api.perplexity.ai
+    api_key_env: PERPLEXITY_API_KEY
+    priority: 1  # web-grounded research
+  zai:
+    base_url: https://api.z.ai/v1
+    api_key_env: ZAI_API_KEY
+    priority: 1  # separate rate limits from Ollama
+  codex:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    priority: 2  # ChatGPT Pro
+
+# Active models:
+#   Cloud: glm-5.1:cloud (Ollama), glm-5.1-turbo (Z.ai), sonar-reasoning-pro (Perplexity)
+#   Local: qwen3.5:4b (3.2GB, Cortana), qwen3-coder-next (48.2GB, Cornelius exclusive)
+#   NIM: qwen3-coder-480b (Neo)
+
+agents:
+  # --- Command ---
+  Milo:
+    bias: balanced
+    preference: cloud-first
+    primary_model: ollama_cloud/glm-5.1:cloud
+    escalation_model: codex/gpt-5.4
+    fallback_model: zai/glm-5.1-turbo
+
+  # --- Core Specialists ---
+  Sagan:
+    bias: accuracy
+    preference: cloud-preferred
+    primary_model: perplexity/sonar-reasoning-pro
+    escalation_model: codex/gpt-5.4
+    fallback_model: zai/glm-5.1-turbo
+
+  Neo:
+    bias: accuracy
+    preference: cloud-preferred
+    primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
+    escalation_model: codex/gpt-5.4
+    fallback_model: ollama_cloud/minimax-m2.7:cloud
+
+  Hermes:
+    bias: balanced
+    preference: cloud-first
+    primary_model: ollama_cloud/glm-5.1:cloud
+    escalation_model: zai/glm-5.1-turbo
+    fallback_model: ollama_local/qwen3.5:4b
+
+  Sentinel:
+    bias: accuracy
+    preference: cloud-first
+    primary_model: ollama_cloud/glm-5.1:cloud
+    escalation_model: zai/glm-5.1-turbo
+    fallback_model: ollama_local/qwen3.5:4b
+
+  Cortana:
+    bias: balanced
+    preference: local-first
+    primary_model: ollama_local/qwen3.5:4b
+    escalation_model: ollama_cloud/glm-5.1:cloud
+
+  Cornelius:
+    bias: balanced
+    preference: local-exclusive
+    primary_model: ollama_local/qwen3-coder-next:latest
+    escalation_model: ollama_cloud/minimax-m2.7:cloud
+    exclusive_local: true  # 48.2GB — runs solo

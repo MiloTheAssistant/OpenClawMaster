@@ -1,0 +1,94 @@
+defaults:
+  simple_answer_owner: Milo
+  orchestration_owner: Elon
+
+# Profiles define both the agent set and the execution sequence.
+# Brackets [] within a sequence indicate parallel execution.
+# See Router_Profiles.md for narrative descriptions.
+#
+# Delegation model:
+#   John → Milo (intake, clarity, complexity score) → Elon (orchestration, agent selection)
+#   Elon delivers routine workflow results directly to John.
+#   Milo is the mandatory return path only for HALT, escalations, and policy decisions.
+
+profiles:
+  intelligence:
+    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    sequence:
+      - Pulse                    # scout and score signals
+      - Sagan                    # validate and synthesize
+      - Hemingway                # format readable brief (COPY_PACKAGE)
+      - Elon                     # compile and clear run instance
+      - Zuck                     # package for platform (SOCIAL_PACKAGE) + distribute
+      - Cortana                  # log state
+
+  campaign:
+    agents: [Sagan, Hemingway, Jonny, Elon, Zuck, Cortana]
+    sequence:
+      - Sagan                    # research and source material
+      - [Hemingway, Jonny]       # copy (COPY_PACKAGE) + visual in parallel
+      - Elon                     # compile and clear
+      - Zuck                     # package + distribute (SOCIAL_PACKAGE)
+      - Cortana                  # log state
+
+  engineering:
+    agents: [Neo, Cornelius, ClawCode, Sentinel, Milo, Cortana]
+    sequence:
+      - Neo                      # architecture and tradeoffs (GPT-5.4 Codex)
+      - Cornelius                # execution plan with rollback (GPT-OSS 20B)
+      - ClawCode                 # implementation — routine autonomous coding
+      - Sentinel                 # QA gate (always triggered for infra)
+      - Milo                     # approval gate
+      - Cortana                  # log state
+    notes: "ClawCode executes implementation; Claude Code invoked directly for critical/complex work"
+
+  executive:
+    agents: [Elon, Sentinel, Milo, Cortana]
+    sequence:
+      - Elon                     # build task graph, dispatch parallel specialists
+      - Sentinel                 # QA on aggregated results
+      - Milo                     # final approval
+      - Cortana                  # log state
+    notes: Elon fans out to specialists dynamically based on task graph
+
+  social_response:
+    agents: [Pulse, Hemingway, Zuck, Cortana]
+    sequence:
+      - Pulse                    # detect or receive signal
+      - Hemingway                # draft response copy (COPY_PACKAGE)
+      - Zuck                     # package + post (SOCIAL_PACKAGE)
+      - Cortana                  # log state
+
+  recurring_publish:
+    agents: [Pulse, Sagan, Hemingway, Elon, Zuck, Cortana]
+    sequence:
+      - Pulse                    # scan feeds and signals
+      - Sagan                    # synthesize and validate sources
+      - Hemingway                # format for audience (COPY_PACKAGE)
+      - Elon                     # clear run instance
+      - Zuck                     # package + auto-post to approved channels (SOCIAL_PACKAGE)
+      - Cortana                  # log run completion
+    requires:
+      - standing_milo_approval
+      - elon_instance_clearance
+      - sentinel_not_blocking
+
+rules:
+  # Milo answers directly only for trivial requests (no tool calls, no ambiguity)
+  - when: trivial_and_no_tools
+    route_to: Milo
+  # All other requests: Milo briefs Elon; Elon selects agents from first principles
+  - when: cross_domain_or_multi_step
+    route_to: Elon
+  - when: research_required
+    enforce: Sagan
+  - when: signal_detected
+    start_with: Pulse
+  - when: system_change
+    route_sequence: [Neo, Cornelius]
+  - when: autonomous_coding_task
+    route_to: ClawCode
+  - when: approved_recurring_publish
+    route_profile: recurring_publish
+  - when: critical_or_complex_coding
+    note: "Escalate to Claude Code directly — outside harness"

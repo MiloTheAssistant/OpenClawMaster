@@ -1,0 +1,252 @@
+defaults:
+  system_execution: approval-required
+  filesystem_access: controlled-write
+  external_apis: scoped
+
+tool_registry:
+  # --- State & Orchestration Tools ---
+  read_state:
+    type: internal
+    description: Read-only access to Cortana state store
+    implementation: openclaw_function
+    function: cortana.read_state
+    permissions: [read]
+
+  routing_controls:
+    type: internal
+    description: Set TIER_CAP, PARALLEL_CAP, RISK_MODE, HALT
+    implementation: openclaw_function
+    function: milo.routing_controls
+    permissions: [read, write_policy]
+
+  orchestration:
+    type: internal
+    description: Build task graphs, fan-out/fan-in, clear run instances
+    implementation: openclaw_function
+    function: elon.orchestration
+    permissions: [read, dispatch]
+
+  state_log:
+    type: internal
+    description: Write state updates, log completions/failures
+    implementation: openclaw_function
+    function: cortana.state_log
+    permissions: [read, write]
+    auto_write: true  # Cortana may log automatically per State_Schema.md
+
+  artifact_registry:
+    type: internal
+    description: Register and retrieve generated artifacts
+    implementation: openclaw_function
+    function: cortana.artifact_registry
+    permissions: [read, write]
+
+  # --- Research & Web Tools ---
+  web_read:
+    type: openclaw_plugin
+    description: Search the web and extract readable content
+    implementation: "@ollama/openclaw-web-search"
+    install: openclaw plugins install @ollama/openclaw-web-search
+    requires_auth: true  # ollama signin required
+    permissions: [read]
+
+  web_fetch:
+    type: openclaw_plugin
+    description: Fetch specific URLs and extract content (no JS execution)
+    implementation: "@ollama/openclaw-web-search"
+    permissions: [read]
+
+  feeds:
+    type: openclaw_plugin
+    description: Monitor RSS/API feeds for signal detection
+    implementation: "@ollama/openclaw-web-search"
+    notes: Uses web_read under the hood for feed polling
+    permissions: [read]
+
+  docs_read:
+    type: openclaw_function
+    description: Read local documents, PDFs, and knowledge base files
+    implementation: filesystem_read
+    base_path: /Volumes/BotCentral/Users/milo/Documents/
+    permissions: [read]
+
+  synthesis:
+    type: internal
+    description: Multi-source evidence aggregation and conflict resolution
+    implementation: agent_capability
+    notes: Not a discrete tool — Sagan's core LLM capability driven by prompt
+    permissions: [read]
+
+  # --- Engineering Tools ---
+  code_read:
+    type: openclaw_function
+    description: Read and analyze code repositories and files
+    implementation: filesystem_read
+    base_path: /Volumes/BotCentral/Users/milo/
+    permissions: [read]
+
+  architecture:
+    type: internal
+    description: Produce architecture briefs, dependency maps, tradeoff analysis
+    implementation: agent_capability
+    notes: Neo's core LLM capability driven by prompt
+    permissions: [read]
+
+  plan_shell:
+    type: internal
+    description: Generate shell command execution plans (never execute directly)
+    implementation: agent_capability
+    notes: Cornelius produces plans only — execution requires MILO approval
+    permissions: [read]
+    restrictions:
+      - no_direct_execution
+      - approval_required_from: Milo
+
+  plan_filesystem:
+    type: internal
+    description: Generate filesystem change plans with rollback
+    implementation: agent_capability
+    notes: Cornelius produces plans only — execution requires MILO approval
+    permissions: [read]
+    restrictions:
+      - no_direct_execution
+      - approval_required_from: Milo
+
+  # --- Content Tools ---
+  copy_formatting:
+    type: internal
+    description: Format copy variants with audience/tone/CTA metadata
+    implementation: agent_capability
+    notes: Hemingway's core LLM capability driven by prompt
+    permissions: [read]
+
+  visual_prompting:
+    type: internal
+    description: Generate visual direction briefs and image generation prompts
+    implementation: agent_capability
+    notes: Jonny's core LLM capability driven by prompt
+    permissions: [read]
+
+  # --- Distribution Tools ---
+  discord_post:
+    type: api
+    description: Post to Discord channels via webhook
+    implementation: discord_webhook
+    config:
+      server: "Milo's World"
+      channels:
+        dfb: "#dfb"
+      webhook_url_env: DISCORD_WEBHOOK_URL
+    permissions: [write]
+    restrictions:
+      - requires_standing_approval_or_manual_mode
+      - zuck_only
+
+  telegram_post:
+    type: api
+    description: Post to Telegram channels via bot API
+    implementation: telegram_bot
+    config:
+      bot_token_env: TELEGRAM_BOT_TOKEN
+    permissions: [write]
+    restrictions:
+      - requires_standing_approval_or_manual_mode
+      - zuck_only
+
+  x_post:
+    type: api
+    description: Post to X.com (manual only until API integration complete)
+    implementation: x_api
+    status: pending  # X.com Developer API setup in progress
+    config:
+      api_key_env: X_API_KEY
+      api_secret_env: X_API_SECRET
+    permissions: [write]
+    restrictions:
+      - manual_only
+      - zuck_only
+      - milo_approval_per_post
+
+  # --- 2Brain Tools ---
+  twobrain_read:
+    type: filesystem
+    description: "Read from 2Brain wiki, outputs, or briefings"
+    implementation: filesystem_read
+    base_path: ~/repos/2Brain/
+    permissions: [read]
+
+  twobrain_write:
+    type: filesystem
+    description: "Write to 2Brain raw/ sources or outputs/"
+    implementation: filesystem_write
+    base_path: ~/repos/2Brain/
+    permissions: [read, write]
+    restrictions:
+      - "Cortana only — other agents route through Cortana"
+      - "Never modify wiki/ directly — add to raw/ for compilation"
+
+  cost_log:
+    type: internal
+    description: "Log API cost to brain.sqlite cost_tracker table"
+    implementation: openclaw_function
+    function: cortana.cost_log
+    permissions: [write]
+
+  dashboard_deploy:
+    type: script
+    description: "Deploy Command Center Dashboard to Vercel"
+    implementation: vercel_deploy
+    script_path: ~/repos/ClawCode/dashboard/
+    permissions: [write]
+    restrictions:
+      - zuck_only
+      - milo_approval_required
+
+  # --- QA Tools ---
+  read_only_review:
+    type: internal
+    description: Read-only access to all agent outputs for QA evaluation
+    implementation: openclaw_function
+    function: sentinel.review
+    permissions: [read]
+    notes: Sentinel can read any handoff packet or artifact but cannot modify
+
+  # --- Coding Agent Tool ---
+  code_execute:
+    type: agent_capability
+    description: "Execute coding tasks — write scripts, modify files, run tests"
+    implementation: clawcode_coding_agent
+    model_primary: ollama_cloud/minimax-m2.7
+    model_escalation: codex/gpt-5.3-codex-spark
+    model_local: ollama_local/gpt-oss:20b
+    permissions: [read, write]
+    restrictions:
+      - "MILO approval required for filesystem changes outside ClawCode/coding-agent/workspace/"
+      - "Never modify OpenClawMaster files directly"
+      - "Never execute shell commands without plan approval"
+      - "Escalate to Codex-Spark for tasks estimated > 5 minutes"
+    workspace: ~/repos/ClawCode/coding-agent/workspace/
+
+agents:
+  Milo:
+    tools: [read_state, routing_controls]
+  Elon:
+    tools: [read_state, orchestration]
+  Sentinel:
+    tools: [read_only_review]
+  Cortana:
+    tools: [state_log, artifact_registry]
+  Pulse:
+    tools: [feeds, web_read]
+  Sagan:
+    tools: [web_read, web_fetch, docs_read, synthesis]
+  Neo:
+    tools: [code_read, architecture]
+  Cornelius:
+    tools: [plan_shell, plan_filesystem]
+  Hemingway:
+    tools: [copy_formatting]
+  Jonny:
+    tools: [visual_prompting]
+  Zuck:
+    tools: [discord_post, telegram_post, x_post]
