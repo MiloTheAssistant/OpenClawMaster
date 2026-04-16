@@ -2,6 +2,15 @@
 
 Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
 
+### Discord
+
+- #missioncontrol → channel ID `1485757990278660228`
+- #dfb → channel ID `1485800271421640854`
+- #general → channel ID `1471131357194354889`
+- #elon → channel ID `1485854013378269324`
+- #milo → channel ID `1485854018533068900`
+- #sysadmin → channel ID `1486019891218874369`
+
 ## What Goes Here
 
 Things like:
