@@ -538,34 +538,13 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "ollama/gemma4:31b-it-q4_K_M"
-      },
-      {
-        "id": "elon",
-        "name": "Elon",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-elon",
-        "model": "openai-codex/gpt-5.4"
-      },
-      {
-        "id": "pulse",
-        "name": "Pulse",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-pulse",
-        "model": "ollama/gemma4:26b",
-        "sandbox": {
-          "mode": "all"
-        }
+        "model": "openai/o4-mini"
       },
       {
         "id": "sentinel",
         "name": "Sentinel",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sentinel",
         "model": "ollama/glm-4.7-flash:latest"
-      },
-      {
-        "id": "sentinel-rt",
-        "name": "Sentinel Red Team",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sentinel-rt",
-        "model": "zai/glm-5"
       },
       {
         "id": "cornelius",
@@ -577,7 +556,7 @@
         "id": "cortana",
         "name": "Cortana",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cortana",
-        "model": "ollama/nemotron-3-nano:4b",
+        "model": "ollama/qwen3.5:4b",
         "tools": {
           "deny": [
             "group:web",
@@ -595,48 +574,6 @@
         "model": "nim/qwen/qwen3-coder-480b-a35b-instruct"
       },
       {
-        "id": "hemingway",
-        "name": "Hemingway",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hemingway",
-        "model": "ollama/gemma4:26b",
-        "tools": {
-          "deny": [
-            "group:web",
-            "browser"
-          ]
-        }
-      },
-      {
-        "id": "jonny",
-        "name": "Jonny",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-jonny",
-        "model": "zai/glm-5",
-        "sandbox": {
-          "mode": "all"
-        },
-        "tools": {
-          "deny": [
-            "group:web",
-            "browser"
-          ]
-        }
-      },
-      {
-        "id": "zuck",
-        "name": "Zuck",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-zuck",
-        "model": "ollama/gemma4:26b",
-        "tools": {
-          "deny": [
-            "group:web",
-            "browser"
-          ],
-          "fs": {
-            "workspaceOnly": false
-          }
-        }
-      },
-      {
         "id": "sagan",
         "name": "Sagan",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sagan",
@@ -648,34 +585,10 @@
         }
       },
       {
-        "id": "quant",
-        "name": "Quant",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-quant",
-        "model": "ollama/gemma4:26b"
-      },
-      {
         "id": "hermes",
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
         "model": "ollama/gemma4:26b"
-      },
-      {
-        "id": "themis",
-        "name": "Themis",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-themis",
-        "model": "openai/o4-mini"
-      },
-      {
-        "id": "cerberus",
-        "name": "Cerberus",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-cerberus",
-        "model": "nim/nvidia/llama-3.1-nemotron-ultra-253b-v1"
-      },
-      {
-        "id": "kairo",
-        "name": "Kairo",
-        "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-kairo",
-        "model": "openai-codex/gpt-5.4"
       }
     ]
   },
