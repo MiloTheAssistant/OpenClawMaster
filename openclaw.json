@@ -544,7 +544,7 @@
         "id": "sentinel",
         "name": "Sentinel",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-sentinel",
-        "model": "ollama/glm-4.7-flash:latest"
+        "model": "ollama/glm-5.1:cloud"
       },
       {
         "id": "cornelius",
@@ -588,7 +588,7 @@
         "id": "hermes",
         "name": "Hermes",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace-hermes",
-        "model": "ollama/gemma4:26b"
+        "model": "ollama/glm-5.1:cloud"
       }
     ]
   },
