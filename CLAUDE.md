@@ -89,7 +89,7 @@ John (USER)
 
 ### When modifying agents
 - Agent prompts (`agents/*.md`) are fixed instructions — modify only with Milo approval
-- Every agent must have a defined deliverable format compatible with Elon's fan-in
+- Every agent must have a defined deliverable format compatible with Milo's sequential dispatch
 - Task-specific prompts are separate from identity prompts
 
 ### When modifying tools
@@ -131,7 +131,7 @@ Every failure generates a `FAILURE_ENVELOPE` per `docs/Handoff_Protocol.md`:
 
 1. **First failure** — silent retry with same model
 2. **Model unavailable** — retry with fallback from `config/models.yaml`
-3. **Second failure** — Elon reroutes or marks branch as partial
+3. **Second failure** — Milo reroutes or marks step as partial
 4. **Required branch failure** — Milo is notified
 5. **3 failures in 24h** — Cortana surfaces pattern and generates `GUARDRAIL_PROPOSAL`
 

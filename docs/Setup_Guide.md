@@ -172,17 +172,14 @@ done
 
 ---
 
-## Step 12 — Re-auth OpenAI Codex (Elon)
+## Step 12 — Re-auth OpenAI Codex (Milo escalation)
 
 ```bash
 openclaw auth openai-codex
-# Follow OAuth flow to re-authenticate Elon's gpt-5.4 access
+# Follow OAuth flow to re-authenticate gpt-5.4 access (used as Milo/Sagan/Neo escalation)
 ```
 
-If OAuth fails, temporarily switch Elon to Claude in `openclaw.json`:
-```json
-{ "id": "elon", "model": "anthropic/claude-sonnet-4-6" }
-```
+If OAuth fails, Milo's escalation model falls through to `zai/glm-5.1-turbo` per `config/models.yaml`.
 
 ---
 

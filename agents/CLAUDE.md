@@ -10,7 +10,7 @@ Each `.md` file is an agent identity prompt with YAML frontmatter (`name`, `mode
 
 - **Milo approval required** for any modification to agent prompts. These are fixed identity instructions, not casual docs.
 - **Frontmatter `model` field must match `config/models.yaml`** — the agent's primary model assignment. When you update one, update the other.
-- **Every agent must have a defined deliverable format** compatible with Elon's fan-in orchestration (structured envelopes, not free-form text).
+- **Every agent must have a defined deliverable format** compatible with Milo's sequential dispatch (structured envelopes, not free-form text).
 - **Task-specific prompts are separate from identity prompts.** Don't add task-specific instructions to these files — those go in workflow definitions or BRIEF_FOR_ELON blocks.
 - **No side effects, no direct user messaging.** Specialist agents return structured envelopes. Only Milo delivers to John. Only agents listed in `AGENTS.md` User-Facing Access may speak to John directly.
 - **Milo is male** — use he/him pronouns when referencing Milo in any documentation or code.
