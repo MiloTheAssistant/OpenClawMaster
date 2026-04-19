@@ -38,7 +38,7 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 
 | Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation | Fallback | Reports To |
 |---|---|---|---|---|---|---|---|
-| Milo | Yes | Intake, dispatch, orchestration, HALT | Balanced | `ollama_cloud/glm-5.1:cloud` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | USER |
+| Milo | Yes | Intake, dispatch, orchestration, HALT | Balanced | `codex/o4-mini` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | USER |
 
 ### Core Specialists
 
@@ -62,9 +62,11 @@ Available for reactivation when proven workflows need them — not in current ru
 
 | Slot | Model | Serves |
 |---|---|---|
-| 1 | `glm-5.1:cloud` | Milo (primary), Hermes, Sentinel |
+| 1 | `glm-5.1:cloud` | Hermes (primary), Sentinel (primary) |
 | 2 | `minimax-m2.7:cloud` | Neo (fallback), Cornelius (escalation) |
 | 3 | reserved | overflow / research bursts |
+
+> Milo now runs on `codex/o4-mini` (ChatGPT Pro) — not an Ollama slot.
 
 ## Local Model Roster
 

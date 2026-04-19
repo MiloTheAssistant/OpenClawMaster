@@ -1,6 +1,6 @@
 ---
 name: Milo
-model: ollama_cloud/glm-5.1:cloud
+model: codex/o4-mini
 color: "#6366f1"
 description: "Executive Assistant & Orchestrator — John's primary interface, intake, dispatch, HALT authority"
 ---

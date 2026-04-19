@@ -21,7 +21,7 @@ John may explicitly invoke `hermes` for comms or `sentinel` for QA if needed.
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, dispatch, orchestration, HALT authority | `ollama_cloud/glm-5.1:cloud` |
+| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, dispatch, orchestration, HALT authority | `codex/o4-mini` |
 
 ### Core Specialists
 

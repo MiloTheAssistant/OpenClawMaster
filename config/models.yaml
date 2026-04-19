@@ -48,7 +48,7 @@ agents:
   Milo:
     bias: balanced
     preference: cloud-first
-    primary_model: ollama_cloud/glm-5.1:cloud
+    primary_model: codex/o4-mini  # light reasoning — 200K ctx, structured routing decisions
     escalation_model: codex/gpt-5.4
     fallback_model: zai/glm-5.1-turbo
 
