@@ -38,7 +38,7 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 
 | Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation | Fallback | Reports To |
 |---|---|---|---|---|---|---|---|
-| Milo | Yes | Intake, dispatch, orchestration, HALT | Balanced | `codex/o4-mini` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | USER |
+| Milo | Yes | Intake, dispatch, orchestration, HALT | Balanced | `ollama_cloud/minimax-m2.7:cloud` | `openai/o4-mini` | `zai/glm-5.1-turbo` | USER |
 
 ### Core Specialists
 

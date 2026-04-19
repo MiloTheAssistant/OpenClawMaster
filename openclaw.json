@@ -538,7 +538,7 @@
         "id": "main",
         "name": "Milo",
         "workspace": "/Volumes/BotCentral/Users/milo/.openclaw/workspace",
-        "model": "openai/o4-mini"
+        "model": "ollama/minimax-m2.7:cloud"
       },
       {
         "id": "sentinel",

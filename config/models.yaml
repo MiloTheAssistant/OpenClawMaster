@@ -48,8 +48,8 @@ agents:
   Milo:
     bias: balanced
     preference: cloud-first
-    primary_model: codex/o4-mini  # light reasoning — 200K ctx, structured routing decisions
-    escalation_model: codex/gpt-5.4
+    primary_model: ollama_cloud/minimax-m2.7:cloud  # 1M ctx, fast, Ollama Pro sub
+    escalation_model: openai/o4-mini               # reasoning — standard REST API, reliable
     fallback_model: zai/glm-5.1-turbo
 
   # --- Core Specialists ---
