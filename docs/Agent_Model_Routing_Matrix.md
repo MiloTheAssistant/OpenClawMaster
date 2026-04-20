@@ -45,7 +45,7 @@ Ollama Local, Ollama Pro (cloud), NIM Direct, ChatGPT Pro (Codex), Perplexity Pr
 | Agent | User-facing | Primary Scope | Bias | Primary Model | Escalation | Fallback | Reports To |
 |---|---|---|---|---|---|---|---|
 | Sagan | No | Deep research, web-grounded synthesis | Accuracy | `perplexity/sonar-reasoning-pro` | `codex/gpt-5.4` | `zai/glm-5.1-turbo` | Milo |
-| Neo | No | Engineering, architecture, coding | Accuracy | `nim/qwen/qwen3-coder-480b-a35b-instruct` | `codex/gpt-5.4` | `ollama_cloud/minimax-m2.7:cloud` | Milo |
+| Neo | No | Engineering, architecture, coding | Accuracy | `nim/qwen/qwen3-coder-480b-a35b-instruct` | `codex/gpt-5.4` | `ollama_local/qwen3.6:35b-a3b-q4_K_M` | Milo |
 | Hermes | No (invokable) | Communications — Discord, Telegram, email | Balanced | `ollama_cloud/glm-5.1:cloud` | `zai/glm-5.1-turbo` | `ollama_local/qwen3.5:4b` | Milo |
 | Sentinel | No | QA gate, output validation, security checks | Accuracy | `ollama_cloud/glm-5.1:cloud` | `zai/glm-5.1-turbo` | `ollama_local/qwen3.5:4b` | Milo |
 | Cortana | No | State, memory, telemetry, artifact tracking | Balanced | `ollama_local/qwen3.5:4b` | `ollama_cloud/glm-5.1:cloud` | — | Milo |

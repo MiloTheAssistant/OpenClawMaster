@@ -65,7 +65,7 @@ agents:
     preference: cloud-preferred
     primary_model: nim/qwen/qwen3-coder-480b-a35b-instruct
     escalation_model: codex/gpt-5.4
-    fallback_model: ollama_cloud/minimax-m2.7:cloud
+    fallback_model: ollama_local/qwen3.6:35b-a3b-q4_K_M  # 24GB local, 256K ctx, coding-tuned
 
   Hermes:
     bias: balanced
