@@ -3,11 +3,14 @@
 #
 # Usage:
 #   mc-push task     --board <name> --title "..." --description "..." [--priority high] [--field key=value ...]
+#   mc-push approval --board <name> --title "..." [--description "..."] [--action-type <type>] [--confidence 0.9] [--lead-reasoning "..."]
 #   mc-push comment  --task <task-id> --body "..."
 #   mc-push list     --board <name>
 #
 # Boards: ops | approvals | decisions | knowledge
 # Fields: complexity_score, model_used, token_count, source_agent, dispatched_by, run_id
+# approval --action-type: security_review | infra_change | publish | general (default: security_review)
+# approval --confidence: 0.0–100 (default: 0.9)
 
 set -euo pipefail
 
@@ -143,6 +146,52 @@ cmd_comment() {
   echo
 }
 
+cmd_approval() {
+  local board="" title="" description="" action_type="security_review" confidence="0.9" lead_reasoning=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --board)          board="$2";          shift 2 ;;
+      --title)          title="$2";          shift 2 ;;
+      --description)    description="$2";    shift 2 ;;
+      --action-type)    action_type="$2";    shift 2 ;;
+      --confidence)     confidence="$2";     shift 2 ;;
+      --lead-reasoning) lead_reasoning="$2"; shift 2 ;;
+      *) die "unknown arg: $1" ;;
+    esac
+  done
+
+  [[ -n "$board" ]]  || die "--board required"
+  [[ -n "$title" ]]  || die "--title required"
+
+  # lead_reasoning falls back to title if not supplied
+  [[ -n "$lead_reasoning" ]] || lead_reasoning="$title"
+
+  local board_id
+  board_id=$(resolve_board "$board")
+  [[ -n "$board_id" ]] || die "unknown board: $board"
+
+  local body
+  body=$(python3 -c "
+import json
+print(json.dumps({
+    'action_type':    '$action_type',
+    'confidence':     float('$confidence'),
+    'lead_reasoning': '''$lead_reasoning''',
+    'payload': {
+        'title':       '''$title''',
+        'description': '''${description:-}''',
+    },
+}))
+")
+
+  curl -sS -X POST "$API_BASE/boards/$board_id/approvals" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "$body"
+  echo
+}
+
 cmd_list() {
   local board=""
   while [[ $# -gt 0 ]]; do
@@ -162,12 +211,13 @@ cmd_list() {
 # Main
 # ─────────────────────────────────────────────────────────────
 
-[[ $# -gt 0 ]] || die "usage: mc-push {task|comment|list} [args]"
+[[ $# -gt 0 ]] || die "usage: mc-push {task|approval|comment|list} [args]"
 
 cmd="$1"; shift
 case "$cmd" in
-  task)    cmd_task "$@" ;;
-  comment) cmd_comment "$@" ;;
-  list)    cmd_list "$@" ;;
-  *) die "unknown command: $cmd (valid: task, comment, list)" ;;
+  task)     cmd_task "$@" ;;
+  approval) cmd_approval "$@" ;;
+  comment)  cmd_comment "$@" ;;
+  list)     cmd_list "$@" ;;
+  *) die "unknown command: $cmd (valid: task, approval, comment, list)" ;;
 esac

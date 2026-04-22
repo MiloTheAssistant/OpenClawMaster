@@ -19,9 +19,8 @@ This repo is the configuration source. Live operations run through these dashboa
 |---|---|---|
 | **Mission Control** | `http://localhost:3100` | Task boards, approvals, activity feed, work orchestration |
 | **OpenClaw Control UI** | `http://localhost:18789` (run `openclaw dashboard`) | Native agent/session/skill/cron monitoring |
-| **2Brain Viewer** | `http://localhost:3200/wiki` | Read-only 2Brain wiki + briefings reader (mobile-friendly) |
 
-**The legacy Command Center dashboard at `localhost:3000` has been retired.** Use Mission Control for work and OpenClaw Control UI for agent health.
+**The legacy Command Center dashboard at `localhost:3000` has been retired.** Use Mission Control for work and OpenClaw Control UI for agent health. The 2Brain Viewer (`localhost:3200`) has also been decommissioned.
 
 ---
 

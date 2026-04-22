@@ -15,15 +15,20 @@ Each `.md` file is an agent identity prompt with YAML frontmatter (`name`, `mode
 - **No side effects, no direct user messaging.** Specialist agents return structured envelopes. Only Milo delivers to John. Only agents listed in `AGENTS.md` User-Facing Access may speak to John directly.
 - **Milo is male** — use he/him pronouns when referencing Milo in any documentation or code.
 
-## Agent Hierarchy
+## Agent Hierarchy (Phase 5: 7 agents)
 
 ```
 John (USER)
- └─ MILO (Executive Assistant) — intake, HALT authority
-     └─ ELON (Orchestrator) — task graphs, agent selection
-         ├─ SENTINEL / CORTANA / THEMIS / CERBERUS (Gates)
-         └─ Specialists (PULSE, SAGAN, QUANT, NEO, etc.)
+ └─ MILO (Executive Assistant & Orchestrator) — intake, dispatch, HALT authority
+     ├─ SAGAN     — deep research, web-grounded analysis
+     ├─ NEO       — lead engineer, architecture, coding
+     ├─ HERMES    — communications (Discord, Telegram, email)
+     ├─ SENTINEL  — QA gate, output validation
+     ├─ CORTANA   — state, memory, telemetry
+     └─ CORNELIUS — infra planning, heavy coding (runs solo)
 ```
+
+Elon is retired. Milo dispatches directly to specialists via `sessions_spawn(agentId=...)`. There is no intermediate orchestrator.
 
 ## Adding a New Agent
 

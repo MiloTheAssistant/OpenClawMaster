@@ -5,9 +5,32 @@ set -euo pipefail
 PLIST="$HOME/Library/LaunchAgents/ai.openclaw.gateway.plist"
 LABEL="ai.openclaw.gateway"
 
+# Phase 5 canonical agent set — only these folders are kept
+# Any other folder (mc-*, lead-*, retired agents) is ephemeral and pruned on restart
+CANONICAL_AGENTS=("main" "sagan" "neo" "hermes" "sentinel" "cortana" "cornelius")
+
 echo "[gateway] Stopping..."
 launchctl unload -F "$PLIST" 2>/dev/null || true
+# Force-kill anything still holding the port
+lsof -ti :18789 | xargs kill -9 2>/dev/null || true
 sleep 2
+
+echo "[gateway] Pruning stale agent folders..."
+AGENTS_DIR="$HOME/.openclaw/agents"
+PRUNED=0
+for folder in "$AGENTS_DIR"/*/; do
+  name=$(basename "$folder")
+  keep=false
+  for canonical in "${CANONICAL_AGENTS[@]}"; do
+    [[ "$name" == "$canonical" ]] && keep=true && break
+  done
+  if [[ "$keep" == "false" ]]; then
+    echo "[gateway]   removing stale: $name"
+    rm -rf "$folder"
+    ((PRUNED++)) || true
+  fi
+done
+[[ "$PRUNED" -eq 0 ]] && echo "[gateway]   agent folders clean" || echo "[gateway]   pruned $PRUNED stale folder(s)"
 
 echo "[gateway] Starting..."
 launchctl load -F "$PLIST"
