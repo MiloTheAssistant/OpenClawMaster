@@ -16,14 +16,20 @@ lsof -ti :18789 | xargs kill -9 2>/dev/null || true
 sleep 2
 
 echo "[gateway] Pruning stale agent folders..."
+# Preserve canonical agents (Phase 5) AND MC-managed dynamic agents:
+#   - mc-gateway-*  → MC gateway system agent, auto-registered
+#   - lead-*        → MC board lead agents, created per board
 AGENTS_DIR="$HOME/.openclaw/agents"
 PRUNED=0
 for folder in "$AGENTS_DIR"/*/; do
   name=$(basename "$folder")
   keep=false
+  # Check canonical list
   for canonical in "${CANONICAL_AGENTS[@]}"; do
     [[ "$name" == "$canonical" ]] && keep=true && break
   done
+  # Preserve MC-managed dynamic agents
+  [[ "$name" == mc-gateway-* || "$name" == lead-* ]] && keep=true
   if [[ "$keep" == "false" ]]; then
     echo "[gateway]   removing stale: $name"
     rm -rf "$folder"

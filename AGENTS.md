@@ -1,5 +1,5 @@
 # AGENTS.md
-## OpenClaw — Agent Architecture & Operating Rules (Phase 5)
+## OpenClaw — Agent Architecture & Operating Rules (Phase 5.1)
 
 > **Source of truth for agent identity, authority, delegation, and execution policy.**
 > See `config/models.yaml` for model assignments. See `config/routing.yaml` for routing profiles.
@@ -15,13 +15,13 @@ John may explicitly invoke `hermes` for comms or `sentinel` for QA if needed.
 
 ---
 
-## Agent Roster (Phase 5: Streamlined — 7 agents)
+## Agent Roster (Phase 5.1: 8 agents — Kat added)
 
 ### Command Layer
 
 | Agent | Role Type | Role | Primary Model |
 |-------|-----------|------|---------------|
-| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, dispatch, orchestration, HALT authority | `ollama_cloud/minimax-m2.7:cloud` |
+| **MILO** | `EXECUTIVE_ASSISTANT` | John's 1:1 interface — intake, dispatch, orchestration, HALT authority | `ollama/minimax-m2.7:cloud` |
 
 ### Core Specialists
 
@@ -29,10 +29,11 @@ John may explicitly invoke `hermes` for comms or `sentinel` for QA if needed.
 |-------|-----------|------|---------------|
 | **SAGAN** | `ANALYST` | Deep Research — evidence-backed synthesis, web-grounded analysis | `perplexity/sonar-reasoning-pro` |
 | **NEO** | `BUILDER` | Lead Engineer — architecture, technical design, coding | `nim/qwen/qwen3-coder-480b-a35b-instruct` |
-| **HERMES** | `COMMS` | Communications — Discord, Telegram, email, all outbound messaging | `ollama_cloud/glm-5.1:cloud` |
-| **SENTINEL** | `GATE` | QA Gate — validate output quality, security checks, pre-delivery review | `ollama_cloud/glm-5.1:cloud` |
-| **CORTANA** | `STATE` | State & Memory — memory writes, telemetry, artifact tracking, state updates | `ollama_local/qwen3.5:4b` |
-| **CORNELIUS** | `BUILDER` | Infra & Planning — execution plans, infra changes, rollback paths, heavy coding | `ollama_local/qwen3-coder-next:latest` |
+| **KAT** | `CONTENT` | Content Specialist — website copy, policy pages, blog articles, brand voice | `openai/gpt-5.4` |
+| **HERMES** | `COMMS` | Communications — Discord, Telegram, email, all outbound messaging | `ollama/glm-5.1:cloud` |
+| **SENTINEL** | `GATE` | QA Gate — validate output quality, security checks, pre-delivery review | `openai/o4-mini` |
+| **CORTANA** | `STATE` | State & Memory — memory writes, telemetry, artifact tracking, state updates | `ollama/qwen3.5:4b` |
+| **CORNELIUS** | `BUILDER` | Infra & Planning — execution plans, infra changes, rollback paths, heavy coding | `ollama/qwen3-coder-next:latest` |
 
 ### Retired Agents (available for reactivation when proven workflows need them)
 
@@ -58,10 +59,11 @@ Elon, Pulse, Quant, Hemingway, Jonny, Kairo, Zuck, Themis, Cerberus, Sentinel-RT
 
 | ROLE_TYPE | Agents | Behavior |
 |-----------|--------|----------|
-| `EXECUTIVE_ASSISTANT` | MILO | John's 1:1 interface + orchestrator — intake, dispatch (via `sessions_spawn` with `agentId`), compile results, HALT authority, delivery. Owns HALT exclusively. |
+| `EXECUTIVE_ASSISTANT` | MILO | John's 1:1 interface + orchestrator — intake, dispatch (via `sessions_spawn` with `runtime:"acp"` + `agentId`), compile results, HALT authority, delivery. Owns HALT exclusively. |
 | `GATE` | SENTINEL | Must-pass quality check — may surface `halt_recommended: true` to MILO |
 | `STATE` | CORTANA | Always parallel-safe — stateless reads, structured writes, no policy decisions |
 | `ANALYST` | SAGAN | Deep research and synthesis authority |
+| `CONTENT` | KAT | Content writing — customer-facing copy, brand voice. Produces drafts only; Sentinel reviews, Hermes publishes. |
 | `BUILDER` | NEO, CORNELIUS | Architecture (NEO) → execution plan + heavy coding (CORNELIUS). Sequential. |
 | `COMMS` | HERMES | All outbound messaging — Discord, Telegram, email |
 
@@ -163,7 +165,8 @@ John → MILO (intake, complexity score)
 | Engineering + infra | Milo → Neo → Cornelius → Sentinel → Milo (approval) → Cortana |
 | Outbound comms | Milo → Hermes → Sentinel (conditional) → Cortana |
 | Heavy coding | Milo → Cornelius → Sentinel → Milo (approval) |
-| Email draft | Milo → Hermes (Hermes drafts, John sends) |
+| Email draft | Milo → Kat (body) → Hermes (send-ready) → John approves → Hermes sends |
+| Content creation (website/blog/marketing) | Milo → (Sagan research if needed) → Kat (draft) → Sentinel (QA) → Cornelius (scaffold to repo) |
 | Quality gate | Milo → Sentinel → Cortana |
 | Autonomous coding | Escalate to Claude Code directly (outside harness) |
 
