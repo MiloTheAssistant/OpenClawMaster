@@ -7,7 +7,7 @@ LABEL="ai.openclaw.gateway"
 
 # Phase 5 canonical agent set — only these folders are kept
 # Any other folder (mc-*, lead-*, retired agents) is ephemeral and pruned on restart
-CANONICAL_AGENTS=("main" "sagan" "neo" "hermes" "sentinel" "cortana" "cornelius")
+CANONICAL_AGENTS=("main" "sagan" "neo" "hermes" "sentinel" "cortana" "cornelius" "kat")
 
 echo "[gateway] Stopping..."
 launchctl unload -F "$PLIST" 2>/dev/null || true

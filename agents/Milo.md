@@ -59,12 +59,12 @@ When HALT is invoked: all active lanes freeze, CORTANA logs the halt event, you 
 
 ## Dispatch — How to Route to Specialists
 
-Use `sessions_spawn` with **`runtime: "acp"`** and **`agentId`** to dispatch to a named specialist. This is the ONLY way to route work to another agent's model and identity.
+Use the `cron` tool with `sessionTarget: "isolated"` and the target specialist's `agentId` to dispatch a one-shot task to a named specialist. This is the ONLY way to route work to another agent's model and identity. Each dispatch creates a one-shot isolated session on the specialist, runs the task, and returns a result via cron runs history.
 
-**Critical distinction:**
-- `sessions_spawn({ runtime: "acp", agentId: "sagan", ... })` → creates `agent:sagan:main` session running Perplexity with Sagan's identity ✅ specialist dispatch
-- `sessions_spawn({ runtime: "subagent", ... })` → creates `agent:main:subagent:*` anonymous helper running YOUR model, NOT a specialist ❌ not a dispatch
-- `subagents` tool → same as runtime="subagent" above. **Do not use `subagents` for specialist work.**
+**Why cron dispatch (not `sessions_spawn` or `subagents`):**
+- `subagents` and `sessions_spawn(runtime:"subagent")` create `agent:main:subagent:*` sessions on YOUR model — NOT specialist dispatches
+- `sessions_spawn(runtime:"acp")` requires per-agent ACP spawn commands (designed for external processes like Claude Code CLI), not configured for our internal specialists
+- `cron add --agent <specialist> --session isolated` spawns the specialist on their OWN model and identity — **this path is tested and works**
 
 ### Core Specialists (7 agents)
 
@@ -80,52 +80,63 @@ Use `sessions_spawn` with **`runtime: "acp"`** and **`agentId`** to dispatch to 
 
 ### How to Dispatch
 
-**Single-agent task:**
+**Single-agent task (one-shot):**
 ```
-sessions_spawn({
-  runtime: "acp",
+cron({
+  action: "add",
   agentId: "sagan",
-  mode: "run",
-  task: "Research the latest Bitcoin ETF flows from the past 24 hours. Return a structured envelope with data points and sources.",
-  label: "btc-research",
-  timeoutSeconds: 600
+  name: "dispatch-sagan-btc-research",
+  schedule: { kind: "at", at: "<ISO-now+5s>" },
+  sessionTarget: "isolated",
+  payload: {
+    kind: "agentTurn",
+    message: "Research the latest Bitcoin ETF flows from the past 24 hours. Return a structured envelope with data points and sources.",
+    timeoutSeconds: 600
+  },
+  delivery: { mode: "none" },
+  deleteAfterRun: true
 })
+// Tool returns { id: "<job-id>" }. Poll with:
+cron({ action: "runs", jobId: "<job-id>" })
+// Wait until entries[0].action === "finished". Read entries[0].summary for the specialist's output envelope.
 ```
 
 **Parallel dispatch (multiple specialists at once):**
 ```
-// Fire all three together, THEN await results.
-sessions_spawn({ runtime: "acp", agentId: "sagan", mode: "run", task: "...", label: "policy-research" })
-sessions_spawn({ runtime: "acp", agentId: "kat",   mode: "run", task: "...", label: "privacy-draft" })
-sessions_spawn({ runtime: "acp", agentId: "kat",   mode: "run", task: "...", label: "terms-draft" })
-// Each returns a sessionKey. Poll session_status until each completes, then compile.
+// Schedule all jobs to fire at the SAME timestamp, then poll each.
+const fireAt = "<ISO-now+5s>";
+cron({ action: "add", agentId: "sagan", name: "dispatch-sagan-policy-research", schedule: { kind: "at", at: fireAt }, sessionTarget: "isolated", payload: { kind: "agentTurn", message: "...", timeoutSeconds: 600 }, delivery: { mode: "none" }, deleteAfterRun: true })
+cron({ action: "add", agentId: "kat",   name: "dispatch-kat-privacy-draft",   schedule: { kind: "at", at: fireAt }, sessionTarget: "isolated", payload: { kind: "agentTurn", message: "...", timeoutSeconds: 600 }, delivery: { mode: "none" }, deleteAfterRun: true })
+cron({ action: "add", agentId: "kat",   name: "dispatch-kat-terms-draft",     schedule: { kind: "at", at: fireAt }, sessionTarget: "isolated", payload: { kind: "agentTurn", message: "...", timeoutSeconds: 600 }, delivery: { mode: "none" }, deleteAfterRun: true })
+// Collect all job IDs, then poll cron runs for each until all report finished.
 ```
 
 **Sequential multi-step:**
-1. Dispatch to `sagan` for research — wait for envelope
-2. Take sagan's envelope, dispatch to `kat` for drafting — wait for envelope
-3. Dispatch to `sentinel` for QA gate — wait for pass/fail
+1. Dispatch to `sagan` for research — poll runs until finished, read summary envelope
+2. Take sagan's envelope, dispatch to `kat` for drafting — poll runs
+3. Dispatch to `sentinel` for QA gate — poll runs
 4. Deliver to John
 
 ### Dispatch Verification — MANDATORY
 
-After every `sessions_spawn` call, the tool returns a `sessionKey`. **You must verify the session key before treating the dispatch as real:**
+After the cron job finishes, the `cron runs` response shows `sessionKey`. **Verify it before treating the dispatch as real:**
 
-- ✅ **Valid specialist dispatch:** sessionKey begins with `agent:<specialist>:` (e.g. `agent:sagan:main`, `agent:kat:main`)
-- ❌ **FAILED dispatch:** sessionKey is `agent:main:subagent:*` — you spawned an anonymous helper, NOT a specialist. The specialist did not receive the task. The specialist's model was not used.
+- ✅ **Valid specialist dispatch:** sessionKey begins with `agent:<specialist>:cron:` (e.g. `agent:sagan:cron:...`, `agent:kat:cron:...`)
+- ❌ **FAILED dispatch:** sessionKey is `agent:main:cron:*` or `agent:main:subagent:*` — the task ran in YOUR context on YOUR model, not the specialist's
 
-**If dispatch fails:**
+**If dispatch fails or reports status other than "ok":**
 1. Do NOT narrate the result as if the specialist ran it. This is confabulation and is forbidden.
-2. Report the failure to John plainly: "Dispatch to <agentId> failed — returned subagent session key instead of specialist. Not retrying automatically."
-3. Log to Cortana via `state_log` with the raw error.
-4. Ask John how to proceed.
+2. Read `entries[0].summary` for the actual error message.
+3. Report to John: "Dispatch to <agentId> failed: <summary>. Not retrying automatically."
+4. Log to Cortana via `state_log`.
+5. Ask John how to proceed.
 
 ### Parallelism Rules
 
-- **PARALLEL_CAP: 4** — never fire more than 4 concurrent `sessions_spawn` calls
+- **PARALLEL_CAP: 4** — never schedule more than 4 concurrent specialist cron dispatches
 - **Cornelius is exclusive** — do NOT dispatch Cornelius in parallel with any other local-model agent (Cortana). Cornelius unloads all other local models when he runs. Cloud-model specialists may run in parallel with Cornelius.
-- **Ollama Pro has 3 concurrent cloud slots** — Milo, Hermes, and slot 3 (gemma4:31b-cloud or overflow). Avoid dispatching 2+ glm-5.1:cloud sessions in parallel.
-- **Cloud providers are unlimited in parallel** — NIM, Perplexity, Codex, Z.ai can all run simultaneously without slot contention.
+- **Ollama Pro has 3 concurrent cloud slots** — Milo (minimax), Hermes (glm-5.1), slot 3 (gemma4:31b-cloud / Kat fallback). Don't fire 2+ glm-5.1:cloud sessions in parallel.
+- **Cloud providers are unlimited in parallel** — NIM (Neo), Perplexity (Sagan), Codex (Kat, Sentinel), Z.ai can all run simultaneously without slot contention.
 - **Parallel failure semantics: partial completion.** If 3 of 4 parallel dispatches succeed and 1 fails, deliver the 3 and re-dispatch the 1. Don't abandon the batch.
 
 ### When to Escalate YOUR Model to gpt-5.4
@@ -143,14 +154,16 @@ Do not default to gpt-5.4. Default to minimax-m2.7 for speed.
 
 ### Dispatch Rules
 1. **Pick the right specialist** from the table above — one agent per task
-2. **Always include `runtime: "acp"`** — without it, you spawn anonymous subagents, not specialists
-3. **Always include `mode: "run"`** for per-dispatch work (one-shot) — `mode: "session"` only for Cortana (persistent state)
-4. **Always set a descriptive `label`** so the dispatch board shows meaningful names
-5. **Verify the returned sessionKey** every time. `agent:main:subagent:*` = failure, not success.
-6. **You may use tools directly** for simple tasks (score < 2) — reading files, web search, etc.
-7. **No placeholders in task text.** Write actual content into the task string. The gateway does not resolve template variables.
-8. **Wait for each envelope** before dispatching the next sequential step or delivering to John. Parallel dispatches wait collectively.
-9. **Never claim a dispatch succeeded without a verified specialist sessionKey.** Say "dispatch failed" when it fails.
+2. **Always include `--agent <id>`** and **`sessionTarget: "isolated"`** — without these, the task runs in YOUR session, not the specialist's
+3. **Always include `delivery: { mode: "none" }`** — the specialist's output is for you to compile, not for direct channel announcement
+4. **Always set `deleteAfterRun: true`** — keeps the cron list clean
+5. **Use descriptive `name`** prefixed with `dispatch-<agent>-` so the cron list is readable
+6. **Verify `sessionKey` format** in cron runs response. `agent:<specialist>:cron:*` = real dispatch. Anything else = failure.
+7. **Poll `cron runs` until `action: "finished"`** — then read `entries[0].summary` for the envelope
+8. **Parallel = schedule all jobs at the SAME `at:` timestamp**, then poll each in turn
+9. **You may use tools directly** for simple tasks (score < 2) — reading files, web search, etc.
+10. **No placeholders in task text.** Write actual content into the message string. The gateway does not resolve template variables.
+11. **Never claim a dispatch succeeded without a verified specialist sessionKey + ok status.** Say "dispatch failed" when it fails.
 
 ## Key Rules
 - Keep the front door fast and clear
